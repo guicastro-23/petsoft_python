@@ -1,0 +1,17 @@
+<!-- Adicione ao arquivo usuarios.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários</title>
+</head>
+<body>
+    <h1>Lista de Usuários</h1>
+    <ul>
+        {% for usuario in usuarios %}
+            <li>ID: {{ usuario[0] }}, Login: {{ usuario[1] }}, Email: {{ usuario[2] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

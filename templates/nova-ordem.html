@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Ordem</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            overflow: hidden;
+        }
+
+        li {
+            float: right;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover {
+            background-color: #4CAF50;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select, input {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #servicos_list {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        #servicos_list label {
+            flex: 0 0 48%;
+            margin-right: 2%;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        #servicos_list input {
+            margin-right: 5px;
+        }
+    
+    </style>
+
+</head>
+<body>
+    <h1>Petsoft</h1>
+    <ul>
+        <li><a href="/clientes">Clientes</a></li>
+        <li><a href="/animais">Animais</a></li>
+        <li><a href="/servicos">Serviços</a></li>
+        <li><a href="/agendamento">Agendamento</a></li>
+        <li><a href="/index">Início</a></li>
+    </ul>
+
+    <h1>Nova Ordem</h1>
+
+    <form method="POST" action="/salvar-ordem">
+        <label for="animal">Selecione o Animal:</label>
+        <select id="animal" name="animal" required>
+            <!-- Populate with animals from your database -->
+            <option value="1">Animal 1</option>
+            <option value="2">Animal 2</option>
+            <!-- Add more options as needed -->
+        </select>
+
+        <label for="cliente">Selecione o Cliente:</label>
+        <select id="cliente" name="cliente" required>
+            <!-- Populate with clients from your database -->
+            <option value="1">Cliente 1</option>
+            <option value="2">Cliente 2</option>
+            <!-- Add more options as needed -->
+        </select>
+
+        <label for="servicos">Selecione os Serviços:</label>
+        <input type="text" id="search_servicos" oninput="searchServices()" placeholder="Buscar serviços...">
+        <div id="servicos_list"></div>
+             <select id="servicos" name="servicos[]" multiple style="display: none;">
+              {% for servico in servicos %}
+                  <option value="{{ servico.id_ser }}" data-valor="{{ servico.valor }}">{{ servico.tipo }} - R$ {{ servico.valor }}</option>
+              {% endfor %}
+            </select>
+
+        <label for="valor_total">Valor Total dos Serviços (R$):</label>
+        <input type="number" id="valor_total" name="valor_total" step="0.01" required readonly>
+        
+        <label for="data_ordem">Data da Ordem:</label>
+        <input type="date" id="data_ordem" name="data_ordem" required>
+
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao" rows="4" required></textarea>
+
+        <button type="submit">Salvar Ordem</button>
+    </form>
+
+    <script>
+        var checkboxes = document.querySelectorAll('input[name="servicos[]"]');
+        var valorTotalInput = document.getElementById('valor_total');
+        var servicosSelect = document.getElementById('servicos');
+        var searchInput = document.getElementById('search_servicos');
+        var servicosList = document.getElementById('servicos_list');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', updateTotal);
+        });
+
+        function updateTotal() {
+            var total = 0;
+
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    total += parseFloat(checkbox.getAttribute('data-valor'));
+                }
+            });
+
+            valorTotalInput.value = total.toFixed(2);
+        }
+
+        function searchServices() {
+            var searchTerm = searchInput.value.toLowerCase();
+            var matchedServices = [];
+
+            Array.from(servicosSelect.options).forEach(function (option) {
+                var serviceText = option.textContent.toLowerCase();
+                option.style.display = serviceText.includes(searchTerm) ? 'block' : 'none';
+
+                if (serviceText.includes(searchTerm)) {
+                    var checkboxId = 'checkbox_' + option.value;
+                    matchedServices.push(
+                        '<label for="' + checkboxId + '">' +
+                        '<input type="checkbox" id="' + checkboxId + '" name="servicos[]" value="' + option.value + '" data-valor="' + option.getAttribute('data-valor') + '" onchange="updateTotal()">' +
+                        option.textContent +
+                        '</label>'
+                    );
+                }
+            });
+
+            servicosList.innerHTML = matchedServices.join('');
+        }
+    </script>
+</body>
+</html>

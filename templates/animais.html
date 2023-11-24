@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animais</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            overflow: hidden;
+        }
+
+        li {
+            float: right;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover {
+            background-color: #4CAF50;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Petsoft</h1>
+    <ul>
+        <li><a href="/clientes">Clientes</a></li>
+        <li><a href="/animais">Animais</a></li>
+        <li><a href="/servicos">Serviços</a></li>
+        <li><a href="/agendamento">Agendamento</a></li>
+        <li><a href="/index">Início</a></li>
+    </ul>
+
+
+
+    <h2>Adicionar Novo Animal</h2>
+    <form method="POST" action="/animais" onsubmit="return validateForm()" id="animalForm">
+        <label for="cliente_animal">Nome do Cliente:</label>        
+        <select id="cliente_animal" name="cliente_animal" required>
+            <option value="" disabled selected>Escolha o cliente</option>
+            {% for cliente in clientes %}
+                <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
+            {% endfor %}
+        </select>
+        
+
+        <label for="nome_animal">Nome do Animal:</label>
+        <input type="text" id="nome_animal" name="nome_animal" required pattern="^[A-Za-zÀ-ú ]+$" title="O nome do animal deve conter apenas letras e espaços." placeholder="Digite o nome do animal">
+
+        <label for="data_nasc_animal">Data de Nascimento:</label>
+        <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
+
+        <label for="agressivo_animal">Agressivo:</label>
+        <select id="agressivo_animal" name="agressivo_animal">
+            <option value="" disabled selected>O animal é agressivo?</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+
+        <label for="porte_animal">Porte:</label>
+<select id="porte_animal" name="porte_animal">
+    <option value="" disabled selected>Selecione o porte do animal.</option>
+    <option value="Pequeno">Pequeno</option>
+    <option value="Médio">Médio</option>
+    <option value="Grande">Grande</option>
+</select>
+
+<label for="pelagem_animal">Tipo de Pelagem:</label>
+<select id="pelagem_animal" name="pelagem_animal">
+    <option value="" disabled selected>Selecione o tipo de pelagem.</option>
+    <option value="Curta">Curta</option>
+    <option value="Longa">Longa</option>
+    <option value="Encaracolada">Encaracolada</option>
+    <option value="Dupla">Dupla</option>
+    <option value="Mista">Mista</option>
+</select>
+
+        <label for="observacoes_animal">Observações:</label>
+        <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50" placeholder="Digite observações sobre o animal"></textarea>
+
+        <button type="submit">Adicionar Animal</button>
+    </form>
+
+
+<!--     
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+    
+        function validateForm() {
+            function validateField(inputId, listId, fieldName, regex) {
+                var fieldInput = document.getElementById(inputId);
+                var fieldListOptions = document.getElementById(listId).options;
+    
+                // Validar o campo com expressão regular (regex)
+                if (!regex.test(fieldInput.value)) {
+                    showAlert('O campo ' + fieldName + ' contém caracteres inválidos.');
+                    return false;
+                }
+    
+                // Verificar se o valor está na lista (para pelagem_animal e porte_animal)
+                if (listId && !Array.from(fieldListOptions).some(option => option.value === fieldInput.value)) {
+                    showAlert('Selecione um valor válido para ' + fieldName + '.');
+                    return false;
+                }
+    
+                return true;
+            }
+            function filterNonAlphabetic(input) {
+        // Filtra caracteres não alfabéticos
+        input.value = input.value.replace(/[^A-Za-zÀ-ú ]/g, '');
+    }
+            // Validar o campo "nome_animal"
+            var nomeAnimalRegex = /^[A-Za-zÀ-ú ]+$/;
+            if (!validateField('nome_animal', null, 'Nome do Animal', nomeAnimalRegex)) {
+                showAlert('O nome do animal deve conter apenas letras e espaços.');
+                return false;
+            }
+    
+            // Validar o campo "porte_animal"
+            if (!validateField('porte_animal', 'porte_list', 'Porte', null)) {
+                showAlert('Selecione um valor válido para Porte.');
+                return false;
+            }
+    
+            // Validar o campo "pelagem_animal"
+            if (!validateField('pelagem_animal', 'pelagem_list', 'Pelagem', null)) {
+                showAlert('Selecione um valor válido para Pelagem.');
+                return false;
+            }
+    
+            // Se todas as validações passarem, retorne true
+            return true;
+        }
+    
+        // Adicionar um ouvinte de evento para chamar a função de validação ao enviar o formulário
+        document.getElementById('animalForm').addEventListener('submit', function(event) {
+        if (!validateForm()) {
+            alert('Formulário não enviado devido a erros de validação. Verifique as mensagens de alerta.');
+            event.preventDefault();
+        } else {
+            alert('Formulário enviado com sucesso!');
+        }
+        });
+    </script>
+     -->
+    
+    
