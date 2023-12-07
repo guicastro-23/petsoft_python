@@ -139,7 +139,21 @@
             box-sizing: border-box;
         }
 
-        /* Outros estilos existentes */
+       
+        .link-container a {
+            display: inline-block;
+            padding: 10px 15px;
+            text-decoration: none;
+            border: 2px solid #4CAF50; /* borda verde */
+            color: #4CAF50; /* texto */
+            border-radius: 4px;
+            background-color: #fff; /* fundo braco */
+        }
+        
+        .link-container a:hover {
+            background-color: #4CAF50; 
+            color: #fff; 
+        }
     </style>
 
     </style>
@@ -147,49 +161,31 @@
 </head>
 <body>
     <h1>Petsoft</h1 >
-    <ul>
-        <li><a href="/clientes">Clientes</a></li>
-        <li><a href="/animais">Animais</a></li>
-        <li><a href="/agendamento">Agendamento</a></li>
-        <li><a href="/servicos">Serviços</a></li>
-        <li><a href="/index">Início</a></li>
-    </ul>
+        <ul>
+            <li><a href="/lista_clientes">Clientes</a></li>
+            <li><a href="/animais">Animais</a></li>
+            <li><a href="/lista_servicos">Serviços</a></li>
+            <li><a href="/agendamento">Agendamento</a></li>
+            <li><a href="/index">Início</a></li>
+        </ul>
 
-    <div class="container">
-        <!-- Tabela de tipo de serviço à esquerda -->
-        <div class="left-table">
-            <h1>Lista de Serviços</h1>
-            <table>
-                <tr>
-                    <th>Tipo de Serviço</th>
-                    <th>Valor do Serviço (R$)</th>
-                </tr>
-                {% for servico in servicos %}
-                <tr>
-                    <td>{{ servico.tipo }}</td>
-                    <td>{{ servico.valor }}</td>
-                    <td>
-                        <a class="edit-link" href="{{ url_for('editar_servico', servico_id=servico.id_ser) }}">Editar </a>
-                        <a class="delete-link" href="{{ url_for('excluir_servico', servico_id=servico.id_ser) }}" onclick="return confirm('Tem certeza que deseja excluir este serviço?')">Excluir</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
 
-        <!-- Formulário para adicionar novo serviço à direita -->
-        <div class="right-form">
-            <h2>Adicionar Novo Serviço</h2>
+      
+           
             <form method="POST" action="/servicos">
-                <label for="tipo_servico">Tipo de Serviço:</label>
+             <h2>Adicionar Novo Serviço</h2>   
+              <label for="tipo_servico">Tipo de Serviço:</label>
                 <input type="text" id="tipo_servico" name="tipo_servico" required>
 
                 <label for="valor_servico">Valor do Serviço (R$):</label>
                 <input type="number" id="valor_servico" name="valor_servico" step="0.01" required>
 
                 <button type="submit">Adicionar Serviço</button>
+                <div class=" link-container">
+                    <a href="{{url_for('lista_servicos')}}">Ver Serviços</a>
+                </div>
             </form>
-        </div>
+        
     </div>
 
     {% with messages = get_flashed_messages() %}

@@ -82,14 +82,12 @@
 <body>
     <h1>Petsoft</h1>
     <ul>
-        <li><a href="/clientes">Clientes</a></li>
+        <li><a href="/lista_clientes">Clientes</a></li>
         <li><a href="/animais">Animais</a></li>
-        <li><a href="/servicos">Serviços</a></li>
+        <li><a href="/lista_servicos">Serviços</a></li>
         <li><a href="/agendamento">Agendamento</a></li>
         <li><a href="/index">Início</a></li>
     </ul>
-
-
 
     <h2>Adicionar Novo Animal</h2>
     <form method="POST" action="/animais" onsubmit="return validateForm()" id="animalForm">
@@ -116,12 +114,12 @@
         </select>
 
         <label for="porte_animal">Porte:</label>
-<select id="porte_animal" name="porte_animal">
-    <option value="" disabled selected>Selecione o porte do animal.</option>
-    <option value="Pequeno">Pequeno</option>
-    <option value="Médio">Médio</option>
-    <option value="Grande">Grande</option>
-</select>
+         <select id="porte_animal" name="porte_animal">
+            <option value="" disabled selected>Selecione o porte do animal.</option>
+            <option value="Pequeno">Pequeno</option>
+            <option value="Médio">Médio</option>
+            <option value="Grande">Grande</option>
+         </select>
 
 <label for="pelagem_animal">Tipo de Pelagem:</label>
 <select id="pelagem_animal" name="pelagem_animal">

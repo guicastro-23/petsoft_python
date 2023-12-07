@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            overflow: hidden;
+        }
+
+        li {
+            float: right;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover {
+            background-color: #4CAF50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .view-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    
+        .view-button:hover {
+            background-color: #2980b9;
+        }
+        
+        a.edit-link {
+            color: #3498db; /* Cor do link */
+            text-decoration: none; /* Remove o sublinhado padrão */
+            font-weight: bold; /* Deixa o texto em negrito */
+            margin-left: 10px; /* Adiciona um espaçamento à esquerda para separar do texto adjacente */
+        }
+
+        a.edit-link:hover {
+            color: #2980b9; /* Cor do link ao passar o mouse */
+        }
+
+        a.delete-link {
+            color: #FF0000; 
+            text-decoration: none; /* Remove o sublinhado padrão */
+            font-weight: bold; /* Deixa o texto em negrito */
+            margin-left: 10px; /* Adiciona um espaçamento à esquerda para separar do texto adjacente */
+        }
+      
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+            max-width: 400px;
+            margin: 0 auto;
+            margin: 50px auto 0 auto; 
+         }
+         .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .left-table {
+            width: 45%;
+            box-sizing: border-box;
+            margin-right: 20px;
+        }
+
+        .right-form {
+            width: 45%;
+            box-sizing: border-box;
+        }
+
+        /* Outros estilos existentes */
+    </style>
+
+    </style>
+
+</head>
+<body>
+    <h1>Petsoft</h1 >
+        <ul>
+            <li><a href="/lista_clientes">Clientes</a></li>
+            <li><a href="/animais">Animais</a></li>
+            <li><a href="/lista_servicos">Serviços</a></li>
+            <li><a href="/agendamento">Agendamento</a></li>
+            <li><a href="/index">Início</a></li>
+        </ul>
+
+        <div class="button-edit">
+            <a href="{{ url_for('listar_servicos') }}" class="view-button">Novo Servico</a>
+        </div>
+
+
+            <h2>Lista de Serviços</h2>
+            <table>
+                <tr>
+                    <th>Tipo de Serviço</th>
+                    <th>Valor do Serviço (R$)</th>
+                </tr>
+                {% for servico in servicos %}
+                <tr>
+                    <td>{{ servico.tipo }}</td>
+                    <td>{{ servico.valor }}</td>
+                    <td>
+                        <a class="edit-link" href="{{ url_for('editar_servico', servico_id=servico.id_ser) }}">Editar </a>
+                        <a class="delete-link" href="{{ url_for('excluir_servico', servico_id=servico.id_ser) }}" onclick="return confirm('Tem certeza que deseja excluir este serviço?')">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% with messages = get_flashed_messages() %}
+                 {% if messages %}
+                <div style="margin-top: 20px; padding: 10px; background-color: #4CAF50; color: white; text-align: center;">
+                 {{ messages[0] }}
+                 </div>
+                 {% endif %}
+                {% endwith %}
+      
+    
+
+   
+</body>
+</html>

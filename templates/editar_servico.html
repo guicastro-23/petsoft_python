@@ -98,6 +98,22 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .link-container a {
+            display: inline-block;
+            padding: 10px 15px;
+            text-decoration: none;
+            border: 2px solid #4CAF50; /* borda verde */
+            color: #4CAF50; /* texto */
+            border-radius: 4px;
+            background-color: #fff; /* fundo braco */
+        }
+        
+        .link-container a:hover {
+            background-color: #4CAF50; 
+            color: #fff; 
+        }
+
     </style>
 
 </head>
@@ -110,8 +126,7 @@
         <li><a href="/agendamento">Agendamento</a></li>
         <li><a href="/index">Início</a></li>
     </ul>
-
-    <h1>Editar Serviço</h1>
+    <h2>Editar Serviço</h2>
 
     <form  action="{{ url_for('editar_servico', servico_id=servico.id_ser) }}" method="post">
         <label for="tipo_servico">Tipo de Serviço:</label>
@@ -121,6 +136,10 @@
         <input type="number" id="valor_servico" name="valor_servico" step="0.01" value="{{ servico.valor }}" required>
 
         <button type="submit">Salvar Alterações</button>
+
+        <div class=" link-container">
+            <a href="{{url_for('lista_servicos')}}">Voltar</a>
+        </div>
     </form>
 
     {% with messages = get_flashed_messages() %}

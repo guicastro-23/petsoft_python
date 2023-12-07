@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Novo Usuário</title>
+    <style>
+        /* Adicione seu estilo CSS aqui, se necessário */
+    </style>
+</head>
+<body>
+    <h1>Criar Novo Usuário</h1>
+    
+    <form method="POST" action="/criar_usuario">
+        <label for="username">Nome de Usuário:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Senha:</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="confirm_password">Confirmar Senha:</label>
+        <input type="password" id="confirm_password" name="confirm_password" required>
+
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" name="email" required>
+
+        <button type="submit">Criar Usuário</button>
+    </form>
+    
+    <p><a href="/login">Já tem uma conta? Faça login aqui.</a></p>
+</body>
+</html>

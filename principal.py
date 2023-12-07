@@ -1,21 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import func
 import re
 from flask import jsonify
-from flask_migrate import Migrate
-from functools import wraps
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import UserMixin, LoginManager, login_user
+
+
+
+
+# Hash the password with a shorter length
+hashed_password = generate_password_hash('your_password', method='pbkdf2:sha256', salt_length=8)
+
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:senha123@127.0.0.1/petsoft'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Guilherme1234@127.0.0.1/petsoft'
 app.config['SECRET_KEY'] = 'chave_secreta'  
 db = SQLAlchemy(app)
 
-migrate = Migrate(app, db)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
@@ -27,10 +36,10 @@ class Cliente(db.Model):
 class Animal(db.Model):
     id_an = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80), nullable=False)
-    data_nasc = db.Column(db.Date, nullable=False)
-    pelagem = db.Column(db.String(50))
-    porte = db.Column(db.String(20))
-    agressivo = db.Column(db.Enum('Sim', 'Não'))
+    data_nasc = db.Column(db.Date)
+    pelagem = db.Column(db.String(5))
+    porte = db.Column(db.String(3))
+    agressivo = db.Column(db.Boolean)
     obs = db.Column(db.String(100))
 
     # Chave estrangeira referenciando a tabela Cliente
@@ -40,15 +49,21 @@ class Animal(db.Model):
     cliente = db.relationship('Cliente', backref=db.backref('animais', lazy=True))
 
 
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     id_us = db.Column(db.Integer, primary_key=True, autoincrement=True)
     login = db.Column(db.String(100), nullable=False)
-    senha = db.Column(db.String(80), nullable=False)
+    senha = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    
+    def set_password(self, password):
+     self.senha = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.senha, password)
 
 class Servico(db.Model):
     id_ser = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tipo = db.Column(db.String(10))
+    tipo = db.Column(db.String(20))
     valor = db.Column(db.Float)
 
 class OrdemDeServico(db.Model):
@@ -63,14 +78,34 @@ class OrdemDeServico(db.Model):
     Animal_Cliente_idCliente = db.Column(db.Integer, nullable=False)
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    # This function is used to reload the user object from the user ID stored in the session
+    return Usuario.query.get(int(user_id))
+
+
 # Rotas
 @app.route('/')
 def redirecionar_para_login():
-    return redirect(url_for('login'))
+   return redirect(url_for('login'))
 
 @app.route('/index')
 def home():
     return render_template('index.html')
+# ------------------------------Rotas de cliente ---------------------------------------
+@app.route('/lista_clientes', methods=['GET'])
+def lista_clientes():
+    show_all = request.args.get('showAll', default=False, type=bool)
+    search_term = request.args.get('searchTerm', default='', type=str).strip()
+
+    # Lógica para obter a lista de clientes com base nos parâmetros de consulta
+    if show_all:
+        clientes = Cliente.query.all()
+    else:
+        clientes = Cliente.query.filter(func.lower(Cliente.nome).contains(func.lower(search_term))).all()
+
+    return render_template('lista_clientes.html', clientes=clientes, show_all=show_all, search_term=search_term)
+
 
 @app.route('/clientes', methods=['GET', 'POST'])
 def listar_clientes():
@@ -100,8 +135,41 @@ def listar_clientes():
             db.session.rollback()
             flash('Um cliente com o mesmo nome já existe.', 'error')
         
-        return redirect(url_for('listar_clientes'))
+        return redirect(url_for('lista_clientes'))
+    
+@app.route('/clientes/editar/<int:cliente_id>', methods=['GET', 'POST'])
+def editar_cliente(cliente_id):
+    # Lógica para obter os dados do cliente com o ID fornecido
+    cliente = Cliente.query.get_or_404(cliente_id)
 
+    if request.method == 'POST':
+        # Lógica para processar os dados do formulário de edição
+        cliente.nome = request.form['nome_cliente']
+        cliente.telefone = request.form['telefone_cliente']
+        cliente.logradouro = request.form['endereco_cliente']
+
+        # Atualiza os dados no banco de dados
+        db.session.commit()
+
+        flash('Alterações salvas com sucesso!', 'success')
+        return redirect(url_for('lista_clientes'))  # Redirect to the list of clients
+
+    # Renderize a página de edição com os dados do cliente
+    return render_template('editar_cliente.html', cliente=cliente)
+
+@app.route('/excluir_cliente/<int:cliente_id>', methods=['GET', 'POST'])
+def excluir_cliente(cliente_id):
+    cliente = Cliente.query.get_or_404(cliente_id)
+    
+    db.session.delete(cliente)
+    db.session.commit()
+    
+    flash(' Cliente excluido com sucesso.', 'sucess')
+    return redirect(url_for('lista_clientes'))
+
+#------------------ fim da rota de cliente -------------------------------
+
+#---------- Rotas Animais ---------------------------------------------------------------------
 
 @app.route('/animais', methods=['GET', 'POST'])
 def listar_animais():
@@ -172,7 +240,16 @@ def listar_animais():
 
         return redirect(url_for('listar_animais'))
 
+#--------------------- Fim das 
+
+@app.route('/agendamento')
+def listar_agendamento():
+    agendamento = OrdemDeServico.query.all()
+    return render_template('agendamento.html', agendamento=agendamento)
+
+
 #------------------- Rota de Ordens --------------------------------------------
+
 # Rota para a página "Nova Ordem"
 @app.route('/nova-ordem', methods=['GET', 'POST'])
 def nova_ordem():
@@ -262,11 +339,25 @@ def salvar_ordem():
     
     
 
+
+
 # ------------------ fim das Rotas de Ordens -----------------------------------
 
+#---------------- Rotas de serviço --------------------------------------
+@app.route('/lista_servicos', methods=['GET'])
+def lista_servicos():
+    show_all = request.args.get('showAll', default=False, type=bool)
+    search_term = request.args.get('searchTerm', default='', type=str).strip()
+
+    # Lógica para obter a lista de servicos com base nos parâmetros de consulta
+    if show_all:
+        servicos = Servico.query.all()
+    else:
+       servicos = Servico.query.filter(func.lower(Servico.tipo).contains(func.lower(search_term))).all()
+
+    return render_template('lista_servicos.html', servicos=servicos, show_all=show_all, search_term=search_term)
 
 
-#--------------------- rotas de serviço ------------------------------------------#
 @app.route('/servicos', methods=['GET', 'POST'])
 def listar_servicos():
     if request.method == 'POST':
@@ -289,6 +380,9 @@ def listar_servicos():
                     db.session.add(novo_servico)
                     db.session.commit()
                     flash('Serviço adicionado com sucesso.', 'success')
+
+                    # Redirect to the services list page
+                    return redirect(url_for('lista_servicos'))
             except ValueError:
                 flash('Informe um valor válido para o serviço.', 'error')
 
@@ -354,10 +448,7 @@ def excluir_servico(servico_id):
 
     flash('Serviço excluído com sucesso.', 'success')
     return redirect(url_for('listar_servicos'))
-# ------------------ fim rotas de serviço --------------------------------------
-
-
-
+# ------------------ fim rotas de serviço -----------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None  # Inicializa a mensagem de erro como None
@@ -381,29 +472,64 @@ def login():
     # Se o método for GET ou as credenciais estiverem incorretas, exiba o formulário de login com a mensagem de erro
     return render_template('login.html', error=error)
 
+# --------------------- Criar Usuario -----------------------
+
+@app.route('/criar_usuario', methods=['GET', 'POST'])
+def criar_usuario():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        email = request.form['email']
+
+        # Verifique se a senha e a confirmação de senha coincidem
+        if password != confirm_password:
+            flash('As senhas não coincidem.', 'error')
+            return redirect(url_for('criar_usuario'))
+
+        try:
+            # Consulta se já existe um usuário com o mesmo nome
+            existing_user = Usuario.query.filter_by(login=username).first()
+
+            if existing_user:
+                flash('Este nome de usuário já está em uso. Escolha outro.', 'error')
+                return redirect(url_for('criar_usuario'))
+
+            # Crie um novo usuário e salve no banco de dados
+            novo_usuario = Usuario(login=username, senha=generate_password_hash(password), email=email)
+            db.session.add(novo_usuario)
+            db.session.commit()
+
+            flash('Usuário criado com sucesso. Faça login agora.', 'success')
+            return redirect(url_for('login'))
+        except SQLAlchemyError as e:
+         print(f'Error: {e}')
+        flash('Erro ao criar usuário. Entre em contato com o suporte.', 'error')
+
+ 
+
+    return render_template('criar_usuario.html')
+
 # Proteção de rotas
 @app.before_request
 def before_request():
-    rotas_publicas = ['login', 'logout']
+    # Lista de rotas públicas
+    rotas_publicas = ['login', 'redirecionar_para_login']
+
+    # Verifica se a rota está nas rotas públicas
     if request.endpoint and request.endpoint not in rotas_publicas:
         if 'username' not in session:
-            flash('Você precisa fazer login para acessar esta página.', 'error')
             return redirect(url_for('login', next=request.endpoint))
 
-        
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
-
+# ------------------ fim rotas de Usuario -----------------------------------
 
 if __name__ == '__main__':
-    #with app.app_context():
-       # db.create_all()
+   # with app.app_context():
+   #     db.create_all()
+   
     app.run(debug=True)
 
-
 #     # Apaga o banco e recomeça
-# with app.app_context():
-#     db.drop_all()
-#     db.create_all()
+  #  with app.app_context():
+   #     db.drop_all()
+   #     db.create_all()
