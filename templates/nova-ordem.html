@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,7 +70,8 @@
             margin-bottom: 8px;
         }
 
-        select, input {
+        select,
+        input {
             padding: 8px;
             width: 100%;
             box-sizing: border-box;
@@ -83,6 +85,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-right: 5px;
         }
 
         button:hover {
@@ -106,10 +109,25 @@
         #servicos_list input {
             margin-right: 5px;
         }
-    
-    </style>
 
+        /* Novo estilo para a lista de serviços selecionados */
+        #servicos-selecionados {
+            list-style: none;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-width: 300px; /* Ajuste conforme necessário */
+            margin-top: 10px;
+        }
+
+        #servicos-selecionados li {
+            margin-bottom: 5px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
+
 <body>
     <h1>Petsoft</h1>
     <ul>
@@ -120,90 +138,146 @@
         <li><a href="/index">Início</a></li>
     </ul>
 
-    <h1>Nova Ordem</h1>
-
-    <form method="POST" action="/salvar-ordem">
-        <label for="animal">Selecione o Animal:</label>
-        <select id="animal" name="animal" required>
-            <!-- Populate with animals from your database -->
-            <option value="1">Animal 1</option>
-            <option value="2">Animal 2</option>
-            <!-- Add more options as needed -->
-        </select>
-
-        <label for="cliente">Selecione o Cliente:</label>
+    <h1>Nova Ordem de Serviço</h1>
+    <form method="POST" action="/salvar_ordem">
+        <!-- Campos do formulário -->
+        <label for="cliente">Cliente:</label>
         <select id="cliente" name="cliente" required>
-            <!-- Populate with clients from your database -->
-            <option value="1">Cliente 1</option>
-            <option value="2">Cliente 2</option>
-            <!-- Add more options as needed -->
+            <option value="" disabled selected>Escolha o cliente</option>
+            {% for cliente in clientes %}
+            <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
+            {% endfor %}
         </select>
 
-        <label for="servicos">Selecione os Serviços:</label>
-        <input type="text" id="search_servicos" oninput="searchServices()" placeholder="Buscar serviços...">
-        <div id="servicos_list"></div>
-             <select id="servicos" name="servicos[]" multiple style="display: none;">
-              {% for servico in servicos %}
-                  <option value="{{ servico.id_ser }}" data-valor="{{ servico.valor }}">{{ servico.tipo }} - R$ {{ servico.valor }}</option>
-              {% endfor %}
-            </select>
+        <label for="animal">Animal:</label>
+        <select id="animal" name="animal" required>
+            <!-- A lista de animais será preenchida dinamicamente via AJAX -->
+        </select>
 
-        <label for="valor_total">Valor Total dos Serviços (R$):</label>
-        <input type="number" id="valor_total" name="valor_total" step="0.01" required readonly>
-        
+        <label for="servicos">Serviços Disponíveis:</label>
+        <select id="servicos" name="servicos[]" multiple required>
+            {% for servico in servicos %}
+            <option value="{{ servico.id_ser }}">{{ servico.tipo }} - R$ {{ servico.valor }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="servicos-selecionados">Serviços Selecionados:</label>
+        <ul id="servicos-selecionados"></ul>
+
+        <label for="valor-total">Valor Total:</label>
+        <input type="text" id="valor-total" name="valor_total" readonly>
+
         <label for="data_ordem">Data da Ordem:</label>
         <input type="date" id="data_ordem" name="data_ordem" required>
 
         <label for="descricao">Descrição:</label>
-        <textarea id="descricao" name="descricao" rows="4" required></textarea>
+        <textarea id="descricao" name="descricao" rows="4" cols="50" placeholder="Digite a descrição"></textarea>
+
+        <!-- Adicione outros campos conforme necessário -->
+
+        <!-- Adicione botões para adicionar e remover serviço -->
+        <button type="button" id="adicionar-servico">Adicionar Serviço</button>
+        <button type="button" id="remover-servico">Remover Serviço</button>
 
         <button type="submit">Salvar Ordem</button>
     </form>
 
     <script>
-        var checkboxes = document.querySelectorAll('input[name="servicos[]"]');
-        var valorTotalInput = document.getElementById('valor_total');
-        var servicosSelect = document.getElementById('servicos');
-        var searchInput = document.getElementById('search_servicos');
-        var servicosList = document.getElementById('servicos_list');
+        $(document).ready(function () {
+            // Variável para armazenar os serviços selecionados
+            var servicosSelecionados = [];
 
-        checkboxes.forEach(function (checkbox) {
-            checkbox.addEventListener('change', updateTotal);
+            // Ao selecionar um cliente, atualiza a lista de animais
+            $('#cliente').change(function () {
+                var clienteId = $(this).val();
+                $.ajax({
+                    type: 'GET',
+                    url: '/get_animais_por_cliente/' + clienteId,
+                    success: function (data) {
+                        // Limpa a lista de animais
+                        $('#animal').empty();
+                        // Adiciona os novos animais à lista
+                        $.each(data.animais, function (index, animal) {
+                            $('#animal').append('<option value="' + animal.id + '">' + animal.nome + '</option>');
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Ao clicar duas vezes em um serviço, adiciona ou remove da lista de serviços selecionados
+            $('#servicos').dblclick(function () {
+                var selectedServiceId = $(this).val();
+                var selectedServiceText = $('#servicos option:selected').text();
+
+                // Verifica se o serviço já está na lista de serviços selecionados
+                var index = servicosSelecionados.findIndex(function (service) {
+                    return service.id === selectedServiceId;
+                });
+
+                if (index === -1) {
+                    // Adiciona o serviço à lista de serviços selecionados
+                    servicosSelecionados.push({
+                        id: selectedServiceId,
+                        text: selectedServiceText
+                    });
+                } else {
+                    // Remove o serviço da lista de serviços selecionados
+                    servicosSelecionados.splice(index, 1);
+                }
+
+                // Atualiza a lista de serviços selecionados
+                atualizarListaServicosSelecionados();
+            });
+
+            // Botão para adicionar serviço
+            $('#adicionar-servico').click(function () {
+                // Obtenha o serviço selecionado
+                var selectedService = $('#servicos :selected');
+
+                // Adicione o serviço à lista de serviços selecionados
+                servicosSelecionados.push({
+                    id: selectedService.val(),
+                    text: selectedService.text()
+                });
+
+                // Atualize a lista de serviços selecionados
+                atualizarListaServicosSelecionados();
+            });
+
+            // Botão para remover serviço
+            $('#remover-servico').click(function () {
+                // Obtenha o serviço selecionado
+                var selectedService = $('#servicos-selecionados :selected');
+
+                // Remova o serviço da lista de serviços selecionados
+                servicosSelecionados = servicosSelecionados.filter(function (service) {
+                    return service.id !== selectedService.val();
+                });
+
+                // Atualize a lista de serviços selecionados
+                atualizarListaServicosSelecionados();
+            });
+
+            // Atualiza a lista de serviços selecionados
+            function atualizarListaServicosSelecionados() {
+                $('#servicos-selecionados').empty();
+                var valorTotal = 0;
+
+                $.each(servicosSelecionados, function (index, service) {
+                    $('#servicos-selecionados').append('<li>' + service.text + '</li>');
+                    // Adiciona o valor do serviço ao valor total
+                    valorTotal += parseFloat(service.text.split('R$ ')[1]);
+                });
+
+                // Exibe o valor total
+                $('#valor-total').val('R$ ' + valorTotal.toFixed(2));
+            }
         });
-
-        function updateTotal() {
-            var total = 0;
-
-            checkboxes.forEach(function (checkbox) {
-                if (checkbox.checked) {
-                    total += parseFloat(checkbox.getAttribute('data-valor'));
-                }
-            });
-
-            valorTotalInput.value = total.toFixed(2);
-        }
-
-        function searchServices() {
-            var searchTerm = searchInput.value.toLowerCase();
-            var matchedServices = [];
-
-            Array.from(servicosSelect.options).forEach(function (option) {
-                var serviceText = option.textContent.toLowerCase();
-                option.style.display = serviceText.includes(searchTerm) ? 'block' : 'none';
-
-                if (serviceText.includes(searchTerm)) {
-                    var checkboxId = 'checkbox_' + option.value;
-                    matchedServices.push(
-                        '<label for="' + checkboxId + '">' +
-                        '<input type="checkbox" id="' + checkboxId + '" name="servicos[]" value="' + option.value + '" data-valor="' + option.getAttribute('data-valor') + '" onchange="updateTotal()">' +
-                        option.textContent +
-                        '</label>'
-                    );
-                }
-            });
-
-            servicosList.innerHTML = matchedServices.join('');
-        }
     </script>
+
 </body>
+
 </html>

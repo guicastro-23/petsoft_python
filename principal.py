@@ -337,7 +337,38 @@ def salvar_ordem():
 
         return redirect(url_for('index'))  
     
-    
+
+@app.route('/eventos', methods=['GET'])
+def obter_eventos():
+    ordens = OrdemDeServico.query.all()
+    eventos = []
+
+    for ordem in ordens:
+        eventos.append({
+            'title': ordem.tipo,
+            'start': ordem.data_in.isoformat(),
+            'url': url_for('detalhes_ordem', ordem_id=ordem.id_os)  # Substitua 'detalhes_ordem' pela rota correta
+        })
+
+    return jsonify(eventos)
+
+@app.route('/get_ordens_servico')
+def get_ordens_servico():
+    # Obtenha as ordens de serviço no período especificado
+    start = request.args.get('start')
+    end = request.args.get('end')
+
+    # Consulta ao banco de dados para buscar as ordens de serviço
+    ordens_servico = OrdemDeServico.query.filter(OrdemDeServico.data_in.between(start, end)).all()
+
+    # Transforma os dados em um formato adequado para o calendário
+    events = [{
+        'id_os': ordem_servico.id_os,
+        'descricao': ordem_servico.descricao,
+        'data_in': ordem_servico.data_in.isoformat()  # Formato ISO para compatibilidade com o calendário
+    } for ordem_servico in ordens_servico]
+
+    return jsonify(events)
 
 
 
