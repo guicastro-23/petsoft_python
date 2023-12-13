@@ -8,7 +8,7 @@ from flask import jsonify
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_login import UserMixin, LoginManager, login_user
+
 
 
 
@@ -23,8 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Guilherme1234@127.0.0.1/pe
 app.config['SECRET_KEY'] = 'chave_secreta'  
 db = SQLAlchemy(app)
 
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+
 
 # Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
@@ -49,7 +48,7 @@ class Animal(db.Model):
     cliente = db.relationship('Cliente', backref=db.backref('animais', lazy=True))
 
 
-class Usuario(db.Model, UserMixin):
+class Usuario(db.Model):
     id_us = db.Column(db.Integer, primary_key=True, autoincrement=True)
     login = db.Column(db.String(100), nullable=False)
     senha = db.Column(db.String(128), nullable=False)
@@ -78,10 +77,6 @@ class OrdemDeServico(db.Model):
     Animal_Cliente_idCliente = db.Column(db.Integer, nullable=False)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    # This function is used to reload the user object from the user ID stored in the session
-    return Usuario.query.get(int(user_id))
 
 
 # Rotas
