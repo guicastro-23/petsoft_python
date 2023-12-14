@@ -145,12 +145,16 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Tutor</th>
                     </tr>
                 </head>
                 <tbody>
                     {% for animal in animais %}
                          <tr>
-                             <td>{{ animal.nome }}</td>
+                            <td>{{ animal.nome }}</td>
+                            <td>{{ animal.tipo_animal }}</td> 
+                            <td>{{ animal.cliente.nome }}</td> 
                              <td>
                                 <a class="edit-link">Editar</a>
                                 <a class="delete-link"  onclick="return confirm('Tem certeza que deseja excluir este serviço?')"> Excluir</a>

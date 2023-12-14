@@ -39,6 +39,7 @@ class Animal(db.Model):
     porte = db.Column(db.String(5))
     agressivo = db.Column(db.Boolean)
     obs = db.Column(db.String(100))
+    tipo_animal = db.Column(db.String(10), nullable=True)
 
     # Chave estrangeira referenciando a tabela Cliente
     Cliente_idCliente = db.Column(db.Integer, db.ForeignKey('cliente.idCliente'), nullable=False)
@@ -182,7 +183,7 @@ def listar_animais():
         porte = request.form.get('porte_animal')
         agressivo = request.form.get('agressivo_animal') == 'True' # Verificar se a caixa de seleção agressivo está marcada
         obs = request.form.get('observacoes_animal')
-        
+        tipo_animal = request.form.get('tipo_animal')
 
 
         # Validar o nome do animal usando expressão regular
@@ -222,7 +223,8 @@ def listar_animais():
             pelagem=pelagem,
             porte=porte,
             agressivo=agressivo,
-            obs=obs
+            obs=obs,
+            tipo_animal=tipo_animal
         )
 
         db.session.add(novo_animal)
@@ -235,7 +237,7 @@ def listar_animais():
             db.session.rollback()
             flash(f'Erro ao adicionar o animal: {str(e)}', 'error')
 
-       
+
         return redirect(url_for('lista_animais'))
     
 @app.route('/lista_animais', methods=['GET'])
