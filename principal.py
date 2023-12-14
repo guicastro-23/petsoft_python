@@ -24,7 +24,6 @@ app.config['SECRET_KEY'] = 'chave_secreta'
 db = SQLAlchemy(app)
 
 
-
 # Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
     idCliente = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -36,8 +35,8 @@ class Animal(db.Model):
     id_an = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80), nullable=False)
     data_nasc = db.Column(db.Date)
-    pelagem = db.Column(db.String(5))
-    porte = db.Column(db.String(3))
+    pelagem = db.Column(db.String(20))
+    porte = db.Column(db.String(5))
     agressivo = db.Column(db.Boolean)
     obs = db.Column(db.String(100))
 
@@ -165,6 +164,7 @@ def excluir_cliente(cliente_id):
 #------------------ fim da rota de cliente -------------------------------
 
 #---------- Rotas Animais ---------------------------------------------------------------------
+    
 
 @app.route('/animais', methods=['GET', 'POST'])
 def listar_animais():
@@ -180,8 +180,9 @@ def listar_animais():
         data_nasc = request.form.get('data_nasc_animal')
         pelagem = request.form.get('pelagem_animal')
         porte = request.form.get('porte_animal')
-        agressivo = request.form.get('agressivo_animal')  # Verificar se a caixa de seleção agressivo está marcada
+        agressivo = request.form.get('agressivo_animal') == 'True' # Verificar se a caixa de seleção agressivo está marcada
         obs = request.form.get('observacoes_animal')
+        
 
 
         # Validar o nome do animal usando expressão regular
@@ -229,11 +230,27 @@ def listar_animais():
         try:
             db.session.commit()
             flash('Animal adicionado com sucesso.', 'success')
+        
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao adicionar o animal: {str(e)}', 'error')
 
-        return redirect(url_for('listar_animais'))
+       
+        return redirect(url_for('lista_animais'))
+    
+@app.route('/lista_animais', methods=['GET'])
+def lista_animais():
+    
+    show_all = request.args.get('showAll', default=False, type=bool)
+    search_term = request.args.get('searchTerm', default='', type=str).strip()
+
+    # Lógica para obter a lista de animais com base nos parâmetros de consulta
+    if show_all:
+        animais = Animal.query.all()
+    else:
+        animais = Animal.query.filter(func.lower(Animal.nome).contains(func.lower(search_term))).all()
+    
+    return render_template('lista_animais.html', animais=animais, show_all=show_all, search_term=search_term)
 
 #--------------------- Fim das 
 
@@ -549,6 +566,7 @@ def before_request():
 
 # ------------------ fim rotas de Usuario -----------------------------------
 
+
 if __name__ == '__main__':
    # with app.app_context():
    #     db.create_all()
@@ -556,6 +574,6 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 #     # Apaga o banco e recomeça
-  #  with app.app_context():
+#with app.app_context():
    #     db.drop_all()
-   #     db.create_all()
+   # db.create_all()

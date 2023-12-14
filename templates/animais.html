@@ -83,14 +83,15 @@
     <h1>Petsoft</h1>
     <ul>
         <li><a href="/lista_clientes">Clientes</a></li>
-        <li><a href="/animais">Animais</a></li>
+        <li><a href="/lista_animais">Animais</a></li>
         <li><a href="/lista_servicos">Serviços</a></li>
         <li><a href="/agendamento">Agendamento</a></li>
         <li><a href="/index">Início</a></li>
     </ul>
 
-    <h2>Adicionar Novo Animal</h2>
-    <form method="POST" action="/animais" onsubmit="return validateForm()" id="animalForm">
+    
+    <form method="POST" action="/animais" onsubmit="return validateForm()">
+        <h2>Adicionar Novo Animal</h2>
         <label for="cliente_animal">Nome do Cliente:</label>        
         <select id="cliente_animal" name="cliente_animal" required>
             <option value="" disabled selected>Escolha o cliente</option>
@@ -107,11 +108,8 @@
         <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
 
         <label for="agressivo_animal">Agressivo:</label>
-        <select id="agressivo_animal" name="agressivo_animal">
-            <option value="" disabled selected>O animal é agressivo?</option>
-            <option value="Sim">Sim</option>
-            <option value="Não">Não</option>
-        </select>
+        <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True">
+        <label for="agressivo_animal">Sim</label>
 
         <label for="porte_animal">Porte:</label>
          <select id="porte_animal" name="porte_animal">
