@@ -77,6 +77,47 @@
         button:hover {
             background-color: #45a049;
         }
+        /* Estilização para radio buttons */
+        input[type="radio"] {
+            display: none; /* Oculta o input nativo */
+        }
+    
+        label.radio-label {
+            display: inline-block;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        /* Estilização para radio buttons selecionados */
+        input[type="radio"]:checked + label.radio-label {
+            background-color: #4CAF50;
+            color: #fff;
+            border: 1px solid #4CAF50;
+        }
+    
+        /* Estilização para checkboxes */
+        input[type="checkbox"] {
+            display: none; /* Oculta o input nativo */
+        }
+    
+        label.checkbox-label {
+            display: inline-block;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        /* Estilização para checkboxes marcadas */
+        input[type="checkbox"]:checked + label.checkbox-label {
+            background-color: #4CAF50;
+            color: #fff;
+            border: 1px solid #4CAF50;
+        }
     </style>
 </head>
 <body>
@@ -106,17 +147,16 @@
 
         <label for="tipo_animal">Tipo de Animal:</label>
         <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro">
-        <label for="cachorro">Cachorro</label>
+        <label class="radio-label" for="cachorro">Cachorro</label>
         <input type="radio" id="gato" name="tipo_animal" value="Gato">
-        <label for="gato">Gato</label>
-
+        <label class="radio-label" for="gato">Gato</label>
 
         <label for="data_nasc_animal">Data de Nascimento:</label>
         <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
 
         <label for="agressivo_animal">Agressivo:</label>
         <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True">
-        <label for="agressivo_animal">Sim</label>
+        <label class="checkbox-label" for="agressivo_animal">Sim</label>
 
         <label for="porte_animal">Porte:</label>
          <select id="porte_animal" name="porte_animal">
