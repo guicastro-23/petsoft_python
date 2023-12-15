@@ -12,7 +12,7 @@
             padding: 0;
             background-color: #f4f4f4;
         }
-
+        
         h1 {
             background-color: #333;
             color: #fff;
@@ -20,11 +20,13 @@
             margin: 0;
             text-align: center;
         }
-
+        
         h2 {
             margin-top: 20px;
+            text-align: center; /* Centraliza horizontalmente */
+            margin-bottom: 20px; /* Adiciona margem inferior para espaçamento */
         }
-
+        
         ul {
             list-style-type: none;
             margin: 0;
@@ -32,11 +34,11 @@
             background-color: #555;
             overflow: hidden;
         }
-
+        
         li {
             float: right;
         }
-
+        
         li a {
             display: block;
             color: white;
@@ -44,25 +46,65 @@
             padding: 14px 16px;
             text-decoration: none;
         }
-
+        
         li a:hover {
             background-color: #4CAF50;
         }
 
         form {
+            max-width: 400px;
+            margin: 0 auto;
             margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
+            flex: 1;
+            color: #333;
+            margin-right: 10px;
+            text-align: right;
         }
 
-        input, select, textarea {
+        .input-container {
+            flex: 2;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .radio-label,
+        .checkbox-label {
+            font-weight: bold;
+        }
+
+        select {
             padding: 8px;
             width: 100%;
             box-sizing: border-box;
             margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         button {
@@ -72,52 +114,40 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            max-width: 100%; /* Defina a largura máxima para 100% do container pai */
+            width: auto; /* Redimensione automaticamente para o conteúdo */
         }
 
         button:hover {
             background-color: #45a049;
         }
-        /* Estilização para radio buttons */
-        input[type="radio"] {
-            display: none; /* Oculta o input nativo */
+
+        .errors {
+            max-width: 400px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ff6347;
+            color: white;
+            border-radius: 5px;
+            margin-left: auto; 
+            margin-right: auto; 
         }
-    
-        label.radio-label {
+
+        .link-container a {
             display: inline-block;
-            background-color: #f4f4f4;
-            border: 1px solid #ccc;
-            padding: 8px 16px;
+            padding: 10px 15px;
+            text-decoration: none;
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
             border-radius: 4px;
-            cursor: pointer;
+            background-color: #fff;
         }
-    
-        /* Estilização para radio buttons selecionados */
-        input[type="radio"]:checked + label.radio-label {
+
+        .link-container a:hover {
             background-color: #4CAF50;
-            color: #fff;
-            border: 1px solid #4CAF50;
+            color: white;
         }
-    
-        /* Estilização para checkboxes */
-        input[type="checkbox"] {
-            display: none; /* Oculta o input nativo */
-        }
-    
-        label.checkbox-label {
-            display: inline-block;
-            background-color: #f4f4f4;
-            border: 1px solid #ccc;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    
-        /* Estilização para checkboxes marcadas */
-        input[type="checkbox"]:checked + label.checkbox-label {
-            background-color: #4CAF50;
-            color: #fff;
-            border: 1px solid #4CAF50;
-        }
+        
     </style>
 </head>
 <body>
@@ -131,120 +161,101 @@
     </ul>
 
     
+
     <form method="POST" action="/animais" onsubmit="return validateForm()">
         <h2>Adicionar Novo Animal</h2>
-        <label for="cliente_animal">Nome do Cliente:</label>        
-        <select id="cliente_animal" name="cliente_animal" required>
-            <option value="" disabled selected>Escolha o cliente</option>
-            {% for cliente in clientes %}
-                <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
-            {% endfor %}
-        </select>
+        <div class="form-row">
+            <label for="cliente_animal">Nome do Cliente:</label>
+            <div class="input-container">
+                <select id="cliente_animal" name="cliente_animal" required>
+                    <option value="" disabled selected>Escolha o cliente</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="nome_animal">Nome do Animal:</label>
+            <div class="input-container">
+                <input type="text" id="nome_animal" name="nome_animal" required pattern="^[A-Za-zÀ-ú ]+$" title="O nome do animal deve conter apenas letras e espaços." placeholder="Digite o nome do animal">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="tipo_animal">Tipo de Animal:</label>
+            <div class="input-container">
+                <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro">
+                <label class="radio-label" for="cachorro">Cachorro</label>
+                <input type="radio" id="gato" name="tipo_animal" value="Gato">
+                <label class="radio-label" for="gato">Gato</label>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="data_nasc_animal">Data de Nascimento:</label>
+            <div class="input-container">
+                <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="agressivo_animal">Agressivo:</label>
+            <div class="input-container">
+                <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True">
+                <label class="checkbox-label" for="agressivo_animal">Sim</label>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="porte_animal">Porte:</label>
+            <div class="input-container">
+                <select id="porte_animal" name="porte_animal">
+                    <option value="" disabled selected>Selecione o porte do animal.</option>
+                    <option value="Pequeno">Pequeno</option>
+                    <option value="Médio">Médio</option>
+                    <option value="Grande">Grande</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="pelagem_animal">Tipo de Pelagem:</label>
+            <div class="input-container">
+                <select id="pelagem_animal" name="pelagem_animal">
+                    <option value="" disabled selected>Selecione o tipo de pelagem.</option>
+                    <option value="Curta">Curta</option>
+                    <option value="Longa">Longa</option>
+                    <option value="Encaracolada">Encaracolada</option>
+                    <option value="Dupla">Dupla</option>
+                    <option value="Mista">Mista</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="observacoes_animal">Observações:</label>
+            <div class="input-container">
+                <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50" placeholder="Digite observações sobre o animal"></textarea>
+            </div>
+        </div>
         
-
-        <label for="nome_animal">Nome do Animal:</label>
-        <input type="text" id="nome_animal" name="nome_animal" required pattern="^[A-Za-zÀ-ú ]+$" title="O nome do animal deve conter apenas letras e espaços." placeholder="Digite o nome do animal">
-
-        <label for="tipo_animal">Tipo de Animal:</label>
-        <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro">
-        <label class="radio-label" for="cachorro">Cachorro</label>
-        <input type="radio" id="gato" name="tipo_animal" value="Gato">
-        <label class="radio-label" for="gato">Gato</label>
-
-        <label for="data_nasc_animal">Data de Nascimento:</label>
-        <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
-
-        <label for="agressivo_animal">Agressivo:</label>
-        <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True">
-        <label class="checkbox-label" for="agressivo_animal">Sim</label>
-
-        <label for="porte_animal">Porte:</label>
-         <select id="porte_animal" name="porte_animal">
-            <option value="" disabled selected>Selecione o porte do animal.</option>
-            <option value="Pequeno">Pequeno</option>
-            <option value="Médio">Médio</option>
-            <option value="Grande">Grande</option>
-         </select>
-
-<label for="pelagem_animal">Tipo de Pelagem:</label>
-<select id="pelagem_animal" name="pelagem_animal">
-    <option value="" disabled selected>Selecione o tipo de pelagem.</option>
-    <option value="Curta">Curta</option>
-    <option value="Longa">Longa</option>
-    <option value="Encaracolada">Encaracolada</option>
-    <option value="Dupla">Dupla</option>
-    <option value="Mista">Mista</option>
-</select>
-
-        <label for="observacoes_animal">Observações:</label>
-        <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50" placeholder="Digite observações sobre o animal"></textarea>
-
-        <button type="submit">Adicionar Animal</button>
+        <div class="form-row">
+            <button style="max-width: 100%; width: 400px;" >Adicionar Animal</button>
+        </div>   
+           
+            <div class="link-container">
+                <a href="{{ url_for('lista_animais') }}">Ver Animais</a>
+            </div>   
     </form>
 
-
-<!--     
-    <script>
-        function showAlert(message) {
-            alert(message);
-        }
-    
-        function validateForm() {
-            function validateField(inputId, listId, fieldName, regex) {
-                var fieldInput = document.getElementById(inputId);
-                var fieldListOptions = document.getElementById(listId).options;
-    
-                // Validar o campo com expressão regular (regex)
-                if (!regex.test(fieldInput.value)) {
-                    showAlert('O campo ' + fieldName + ' contém caracteres inválidos.');
-                    return false;
-                }
-    
-                // Verificar se o valor está na lista (para pelagem_animal e porte_animal)
-                if (listId && !Array.from(fieldListOptions).some(option => option.value === fieldInput.value)) {
-                    showAlert('Selecione um valor válido para ' + fieldName + '.');
-                    return false;
-                }
-    
-                return true;
-            }
-            function filterNonAlphabetic(input) {
-        // Filtra caracteres não alfabéticos
-        input.value = input.value.replace(/[^A-Za-zÀ-ú ]/g, '');
-    }
-            // Validar o campo "nome_animal"
-            var nomeAnimalRegex = /^[A-Za-zÀ-ú ]+$/;
-            if (!validateField('nome_animal', null, 'Nome do Animal', nomeAnimalRegex)) {
-                showAlert('O nome do animal deve conter apenas letras e espaços.');
-                return false;
-            }
-    
-            // Validar o campo "porte_animal"
-            if (!validateField('porte_animal', 'porte_list', 'Porte', null)) {
-                showAlert('Selecione um valor válido para Porte.');
-                return false;
-            }
-    
-            // Validar o campo "pelagem_animal"
-            if (!validateField('pelagem_animal', 'pelagem_list', 'Pelagem', null)) {
-                showAlert('Selecione um valor válido para Pelagem.');
-                return false;
-            }
-    
-            // Se todas as validações passarem, retorne true
-            return true;
-        }
-    
-        // Adicionar um ouvinte de evento para chamar a função de validação ao enviar o formulário
-        document.getElementById('animalForm').addEventListener('submit', function(event) {
-        if (!validateForm()) {
-            alert('Formulário não enviado devido a erros de validação. Verifique as mensagens de alerta.');
-            event.preventDefault();
-        } else {
-            alert('Formulário enviado com sucesso!');
-        }
-        });
-    </script>
-     -->
-    
-    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="errors">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
