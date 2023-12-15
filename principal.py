@@ -8,7 +8,7 @@ from flask import jsonify
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from datetime import datetime
 
 
 
@@ -101,7 +101,6 @@ def lista_clientes():
 
     return render_template('lista_clientes.html', clientes=clientes, show_all=show_all, search_term=search_term)
 
-
 @app.route('/clientes', methods=['GET', 'POST'])
 def listar_clientes():
     if request.method == 'GET':
@@ -121,16 +120,24 @@ def listar_clientes():
             flash('Informe um número de telefone válido.', 'error')
             return redirect(url_for('listar_clientes'))
 
-        # If validation passes, add the new client to the database
+        # Verificar duplicação de nome de cliente
+        cliente_existente = Cliente.query.filter_by(nome=nome_cliente).first()
+        if cliente_existente:
+            flash('Um cliente com o mesmo nome já existe. ID do cliente existente: {}'.format(cliente_existente.idCliente), 'error')
+            return redirect(url_for('listar_clientes'))
+
+        # Se todas as validações passarem, adicione o novo cliente ao banco de dados
         novo_cliente = Cliente(nome=nome_cliente, telefone=telefone_cliente, logradouro=endereco_cliente)
         db.session.add(novo_cliente)
         try:
             db.session.commit()
+            flash('Cliente adicionado com sucesso.', 'success')
         except IntegrityError:
             db.session.rollback()
             flash('Um cliente com o mesmo nome já existe.', 'error')
         
         return redirect(url_for('lista_clientes'))
+
     
 @app.route('/clientes/editar/<int:cliente_id>', methods=['GET', 'POST'])
 def editar_cliente(cliente_id):
@@ -169,12 +176,11 @@ def excluir_cliente(cliente_id):
 
 @app.route('/animais', methods=['GET', 'POST'])
 def listar_animais():
-    if request.method == 'GET':
-        animais = Animal.query.all()
-        clientes = Cliente.query.all()
-        return render_template('animais.html', animais=animais, clientes=clientes)
+    animais = Animal.query.all()
+    clientes = Cliente.query.all()
+    errors = []
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         # Obter os dados do formulário
         nome_animal = request.form.get('nome_animal')
         cliente_id = request.form.get('cliente_animal')
@@ -185,61 +191,58 @@ def listar_animais():
         obs = request.form.get('observacoes_animal')
         tipo_animal = request.form.get('tipo_animal')
 
-
+        if tipo_animal not in ['Cachorro', 'Gato']:
+            flash('Por favor, selecione se é um Cachorro ou um Gato.', 'error')
+        else:
         # Validar o nome do animal usando expressão regular
+            if not re.match(r"^[A-Za-zÀ-ú ]+$", nome_animal):
+                flash('O nome do animal deve conter apenas letras e espaços.', 'error')
+            else:
+                # Verificar se o cliente existe
+                cliente = Cliente.query.get(cliente_id)
+                if cliente is None:
+                    flash('Cliente não encontrado.', 'error')
+                else:
+                    # Verificar se o animal já existe para o mesmo cliente
+                    existing_animal = Animal.query.filter_by(nome=nome_animal, Cliente_idCliente=cliente_id).first()
+                    if existing_animal:
+                        flash('Esse cliente já possui um animal com o mesmo nome.', 'error')
+                    else:
+                        try:
+                            data_nasc = datetime.strptime(data_nasc, '%Y-%m-%d')
+                        except ValueError:
+                            flash('Data de nascimento inválida.', 'error')
+                        else:
+                            # Obter a data atual como um objeto datetime
+                            data_atual = datetime.now()
 
-        if not re.match(r"^[A-Za-zÀ-ú ]+$", nome_animal):
-            flash('O nome do animal deve conter apenas letras e espaços.', 'error')
-            return redirect(url_for('listar_animais'))
-        
-        # Verificar se o cliente existe
-        cliente = Cliente.query.get(cliente_id)
-        if cliente is None:
-            flash('Cliente não encontrado.', 'error')
-            return redirect(url_for('listar_animais'))
+                            # Verificar se a data de nascimento é no futuro
+                            if data_nasc > data_atual:
+                                flash('A data de nascimento não pode ser no futuro.', 'error')
+                            else:
+                                # Se todas as verificações passarem, criar o novo animal
+                                novo_animal = Animal(
+                                    nome=nome_animal,
+                                    data_nasc=data_nasc,
+                                    Cliente_idCliente=cliente_id,
+                                    pelagem=pelagem,
+                                    porte=porte,
+                                    agressivo=agressivo,
+                                    obs=obs,
+                                    tipo_animal=tipo_animal
+                                )
 
-        # Verificar se o animal já tem um dono
-        if Animal.query.filter_by(nome=nome_animal).first():
-            flash('Já existe um animal com esse nome.', 'error')
-            return redirect(url_for('listar_animais'))
-        
-        #  # Verificar se a pelagem é válida
-        # pelagens_validas = ['Curta', 'Dupla', 'Longa', 'Longa e Curta','Encaracolada']
-        # if pelagem not in pelagens_validas:
-        #     flash('Pelagem do animal inválida.', 'error')
-        #     return redirect(url_for('listar_animais'))
+                                db.session.add(novo_animal)
 
-        # # Verificar se o porte é válido
-        # portes_validos = ['Pequeno', 'Médio', 'Grande']
-        # if porte not in portes_validos:
-        #     flash('Porte do animal inválido.', 'error')
-        #     return redirect(url_for('listar_animais'))
+                                try:
+                                    db.session.commit()
+                                    flash('Animal adicionado com sucesso.', 'success')
+                                except Exception as e:
+                                    db.session.rollback()
+                                    flash(f'Erro ao adicionar o animal: {str(e)}', 'error') 
+                                return redirect(url_for('lista_animais'))  
+    return render_template('animais.html', animais=animais, clientes=clientes)
 
-        # Se todas as verificações passarem, criar o novo animal
-        novo_animal = Animal(
-            nome=nome_animal,
-            data_nasc=data_nasc,
-            Cliente_idCliente=cliente_id,
-            pelagem=pelagem,
-            porte=porte,
-            agressivo=agressivo,
-            obs=obs,
-            tipo_animal=tipo_animal
-        )
-
-        db.session.add(novo_animal)
-        
-        try:
-            db.session.commit()
-            flash('Animal adicionado com sucesso.', 'success')
-        
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Erro ao adicionar o animal: {str(e)}', 'error')
-
-
-        return redirect(url_for('lista_animais'))
-    
 @app.route('/lista_animais', methods=['GET'])
 def lista_animais():
     
