@@ -190,6 +190,7 @@ def listar_animais():
         agressivo = request.form.get('agressivo_animal') == 'True' # Verificar se a caixa de seleção agressivo está marcada
         obs = request.form.get('observacoes_animal')
         tipo_animal = request.form.get('tipo_animal')
+        nome_animal = nome_animal.capitalize()
 
         if tipo_animal not in ['Cachorro', 'Gato']:
             flash('Por favor, selecione se é um Cachorro ou um Gato.', 'error')

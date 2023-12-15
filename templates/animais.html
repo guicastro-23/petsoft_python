@@ -110,7 +110,7 @@
         button {
             background-color: #4CAF50;
             color: white;
-            padding: 10px 15px;
+            padding: 13px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -135,12 +135,14 @@
 
         .link-container a {
             display: inline-block;
-            padding: 10px 15px;
+            padding: 8px 13px;
             text-decoration: none;
-            border: 2px solid #4CAF50;
+            border: 1px solid #4CAF50;
             color: #4CAF50;
             border-radius: 4px;
             background-color: #fff;
+            max-width: 100%; 
+            width: auto;"
         }
 
         .link-container a:hover {
@@ -246,7 +248,12 @@
         </div>   
            
             <div class="link-container">
-                <a href="{{ url_for('lista_animais') }}">Ver Animais</a>
+                <a href="{{ url_for('lista_animais') }}" 
+                style="max-width: 100%;
+                width: 370px;
+                margin: 0 auto; 
+                text-align:center;"
+                >Ver Animais</a>
             </div>   
     </form>
 
