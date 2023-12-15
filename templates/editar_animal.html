@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animais</title>
+    <title>Editar Animal</title>
 
     <style>
         body {
@@ -60,25 +60,26 @@
             border-radius: 5px;
             box-shadow: 0px 0px 5px 0px #ccc;
         }
-
+        
         .form-row {
             display: flex;
-            justify-content: space-between;
+           
+            justify-content: left;
             align-items: center;
             margin-bottom: 10px;
         }
-
+        
         label {
-            flex: 1;
             color: #333;
-            margin-right: 10px;
-            text-align: right;
+            margin-bottom: 5px; /* Adicione margem inferior para espaçamento vertical */
+            text-align: left;
         }
-
+        
         .input-container {
-            flex: 2;
+            
+            flex: 2; 
         }
-
+       
         input[type="radio"],
         input[type="checkbox"] {
             margin-right: 5px;
@@ -149,11 +150,12 @@
             background-color: #4CAF50;
             color: white;
         }
-        
     </style>
+
 </head>
 <body>
     <h1>Petsoft</h1>
+
     <ul>
         <li><a href="/lista_clientes">Clientes</a></li>
         <li><a href="/lista_animais">Animais</a></li>
@@ -162,101 +164,59 @@
         <li><a href="/index">Início</a></li>
     </ul>
 
-    
-
-    <form method="POST" action="/animais" onsubmit="return validateForm()">
-        <h2>Adicionar Novo Animal</h2>
-        <div class="form-row">
-            <label for="cliente_animal">Nome do Cliente:</label>
-            <div class="input-container">
-                <select id="cliente_animal" name="cliente_animal" required>
-                    <option value="" disabled selected>Escolha o cliente</option>
-                    {% for cliente in clientes %}
-                        <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-
+    <form action="{{ url_for('editar_animal', animal_id=animal.id_an) }}" method="POST">
+        <h2>Editar Animal</h2>
         <div class="form-row">
             <label for="nome_animal">Nome do Animal:</label>
-            <div class="input-container">
-                <input type="text" id="nome_animal" name="nome_animal" required pattern="^[A-Za-zÀ-ú ]+$" title="O nome do animal deve conter apenas letras e espaços." placeholder="Digite o nome do animal">
-            </div>
+            <input type="text" id="nome_animal" name="nome_animal" value="{{ animal.nome }}" pattern="[A-Za-zÀ-ú ]+" required>
         </div>
-
         <div class="form-row">
             <label for="tipo_animal">Tipo de Animal:</label>
-            <div class="input-container">
-                <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro">
-                <label class="radio-label" for="cachorro">Cachorro</label>
-                <input type="radio" id="gato" name="tipo_animal" value="Gato">
-                <label class="radio-label" for="gato">Gato</label>
-            </div>
+            <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro" {{ 'checked' if animal.tipo_animal == 'Cachorro' else '' }}> Cachorro
+            <input type="radio" id="gato" name="tipo_animal" value="Gato" {{ 'checked' if animal.tipo_animal == 'Gato' else '' }}> Gato
         </div>
 
         <div class="form-row">
             <label for="data_nasc_animal">Data de Nascimento:</label>
-            <div class="input-container">
-                <input type="date" id="data_nasc_animal" name="data_nasc_animal" placeholder="Selecione a data de nascimento.">
-            </div>
+            <input type="date" id="data_nasc_animal" name="data_nasc_animal" value="{{ animal.data_nasc.strftime('%Y-%m-%d') }}" required>
         </div>
 
         <div class="form-row">
             <label for="agressivo_animal">Agressivo:</label>
-            <div class="input-container">
-                <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True">
-                <label class="checkbox-label" for="agressivo_animal">Sim</label>
-            </div>
+            <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True" {{ 'checked' if animal.agressivo else '' }}> Sim
         </div>
 
         <div class="form-row">
             <label for="porte_animal">Porte:</label>
-            <div class="input-container">
-                <select id="porte_animal" name="porte_animal">
-                    <option value="" disabled selected>Selecione o porte do animal.</option>
-                    <option value="Pequeno">Pequeno</option>
-                    <option value="Médio">Médio</option>
-                    <option value="Grande">Grande</option>
-                </select>
-            </div>
+            <select id="porte_animal" name="porte_animal">
+                <option value="Pequeno" {{ 'selected' if animal.porte == 'Pequeno' else '' }}>Pequeno</option>
+                <option value="Médio" {{ 'selected' if animal.porte == 'Médio' else '' }}>Médio</option>
+                <option value="Grande" {{ 'selected' if animal.porte == 'Grande' else '' }}>Grande</option>
+            </select>
         </div>
 
-        <div class="form-row">
+         <div class="form-row">
             <label for="pelagem_animal">Tipo de Pelagem:</label>
-            <div class="input-container">
-                <select id="pelagem_animal" name="pelagem_animal">
-                    <option value="" disabled selected>Selecione o tipo de pelagem.</option>
-                    <option value="Curta">Curta</option>
-                    <option value="Longa">Longa</option>
-                    <option value="Encaracolada">Encaracolada</option>
-                    <option value="Dupla">Dupla</option>
-                    <option value="Mista">Mista</option>
-                </select>
-            </div>
+            <select id="pelagem_animal" name="pelagem_animal">
+                <option value="Curta" {{ 'selected' if animal.pelagem == 'Curta' else '' }}>Curta</option>
+                <option value="Longa" {{ 'selected' if animal.pelagem == 'Longa' else '' }}>Longa</option>
+                <option value="Encaracolada" {{ 'selected' if animal.pelagem == 'Encaracolada' else '' }}>Encaracolada</option>
+                <option value="Dupla" {{ 'selected' if animal.pelagem == 'Dupla' else '' }}>Dupla</option>
+                <option value="Mista" {{ 'selected' if animal.pelagem == 'Mista' else '' }}>Mista</option>
+            </select>
         </div>
 
         <div class="form-row">
             <label for="observacoes_animal">Observações:</label>
-            <div class="input-container">
-                <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50" placeholder="Digite observações sobre o animal"></textarea>
-            </div>
+            <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50">{{ animal.obs }}</textarea>
         </div>
-        
-        <div class="form-row">
-            <button style="max-width: 100%; width: 400px;" >Adicionar Animal</button>
-        </div>   
-           
-            <div class="link-container">
-                <a href="{{ url_for('lista_animais') }}" 
-                style="max-width: 100%;
-                width: 370px;
-                margin: 0 auto; 
-                text-align:center;"
-                >Ver Animais</a>
-            </div>   
-    </form>
 
+        <button type="submit">Salvar Alterações</button>
+    
+        <div class="link-container">
+            <a href="{{ url_for('lista_animais') }}">Voltar</a>
+        </div>
+    </form>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         <div class="errors">
@@ -264,5 +224,6 @@
         </div>
     {% endif %}
     {% endwith %}
+
+    <div>
 </body>
-</html>
