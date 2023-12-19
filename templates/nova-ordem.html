@@ -329,11 +329,35 @@
             // Set the input field with the selected client's name
             $('#cliente-nome').val(clientName);
         
-            // If you have a hidden field to store the selected client's ID, set its value
-            // $('#cliente-id').val(clientId);
+            // Set the hidden input field's value with the selected client's ID
+            $('#cliente-id').val(clientId);
+        
+            // Fetch animals related to the selected client
+            fetchAnimalsForClient(clientId);
         
             // Hide the dropdown after selection
             $('#cliente-dropdown').hide();
+        }
+        
+    </script>
+    <script>
+        function fetchAnimalsForClient(clientId) {
+            $.ajax({
+                type: 'GET',
+                url: '/get_animais_por_cliente/' + clientId, // Ensure this route is correctly defined in your Flask app
+                success: function(data) {
+                    // Clear the current options in the animal select
+                    $('#animal').empty();
+        
+                    // Add new options to the animal select
+                    $.each(data.animais, function(index, animal) {
+                        $('#animal').append('<option value="' + animal.id + '">' + animal.nome + '</option>');
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
         }
         
     </script>

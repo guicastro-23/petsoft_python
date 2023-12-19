@@ -461,6 +461,25 @@ def buscar_clientes_por_nome():
     
     return jsonify({'clientes': []})
 
+from flask import jsonify
+
+@app.route('/get_animais_por_cliente/<int:clientId>')
+def get_animais_por_cliente(clientId):
+    try:
+        # Assuming you have a relationship set up between Cliente and Animal models
+        # Replace 'Animal' and 'Cliente' with your actual model names
+        animais = Animal.query.filter_by(Cliente_idCliente=clientId).all()
+
+        # Transform the query result into a list of dictionaries
+        animais_list = [{'id': animal.id_an, 'nome': animal.nome} for animal in animais]
+
+        # Return the result as JSON
+        return jsonify({'animais': animais_list})
+
+    except Exception as e:
+        # Handle exceptions (e.g., client not found, database errors)
+        print(e)  # Log the error for debugging
+        return jsonify({'error': 'Error fetching animals for the client'}), 500
 
 # ------------------ fim das Rotas de Ordens -----------------------------------
 
