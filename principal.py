@@ -450,6 +450,16 @@ def get_ordens_servico():
 
     return jsonify(events)
 
+@app.route('/buscar_clientes_por_nome')
+def buscar_clientes_por_nome():
+    nome = request.args.get('nome', '').strip()
+    if len(nome) > 0:
+        # Adjust the query according to your database schema
+        clients = Cliente.query.filter(Cliente.nome.ilike(f'{nome}%')).all()
+        client_list = [{'idCliente': client.idCliente, 'nome': client.nome} for client in clients]
+        return jsonify({'clientes': client_list})
+    
+    return jsonify({'clientes': []})
 
 
 # ------------------ fim das Rotas de Ordens -----------------------------------
