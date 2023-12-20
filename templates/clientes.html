@@ -165,10 +165,26 @@
         <input type="text" id="nome_cliente" name="nome_cliente" pattern="[A-Za-zÀ-ú ]+" title="Apenas letras e espaços são permitidos" required>
     
         <label for="telefone_cliente">Telefone:</label>
-        <input type="tel" id="telefone_cliente" name="telefone_cliente" pattern="[0-9]{10,}" title="Informe um número de telefone válido" required>
-    
+        <input type="tel" id="telefone_cliente" name="telefone_cliente" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" title="Informe um número de telefone no formato (XX) XXXXX-XXXX" required>
+        
+        <label for="tipo_endereco_cliente">Tipo de Endereço:</label>
+        <select id="tipo_endereco_cliente" name="tipo_endereco_cliente" required>
+            <option value="">Selecione um Tipo de Endereço</option>
+            <option value="Rua">Rua</option>
+            <option value="Avenida">Avenida</option>
+            <option value="Travessa">Travessa</option>
+            <option value="Rodovia">Rodovia</option>
+            <option value="Praca">Praça</option>
+            <option value="Estrada">Estrada</option>
+        </select>
+
         <label for="endereco_cliente">Endereço:</label>
         <input type="text" id="endereco_cliente" name="endereco_cliente" required>
+
+        
+        <label for="numero_endereco_cliente">Número:</label>
+        <input type="text" id="numero_endereco_cliente" name="numero_endereco_cliente" pattern="[0-9]*" title="Apenas números são permitidos" required>
+
     
         <button type="submit">Adicionar Cliente</button>
     
@@ -202,5 +218,12 @@
             return true;
         }
     </script>
+    <script>
+        document.getElementById('telefone_cliente').addEventListener('input', function (e) {
+            var x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,4})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    </script>
+    
 </body>
 </html>
