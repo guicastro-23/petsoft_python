@@ -303,7 +303,7 @@ def lista_animais():
     page = request.args.get('page', 1, type=int)
     search_term = request.args.get('searchTerm', '')
 
-    query = Animal.query
+    query = Animal.query.order_by(Animal.nome)  # Ordena animais pelo nome em ordem alfabética
 
     if search_term:
         # Filtrar animais pelo nome, espécie ou nome do tutor
@@ -311,9 +311,9 @@ def lista_animais():
             Animal.nome.ilike(f'%{search_term}%') |
             Animal.tipo_animal.ilike(f'%{search_term}%') |
             Cliente.nome.ilike(f'%{search_term}%')
-        )
+        ).order_by(Animal.nome)  # Mantém a ordenação após a filtragem
 
-    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    pagination = query.paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
     animais = pagination.items
     total_pages = pagination.pages
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <title>Petsoft - Editar Serviço</title>
 
     <style>
@@ -68,17 +69,23 @@
             color: white;
         }
 
+        
         form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px; /* Espaçamento entre os elementos */
             max-width: 400px;
             margin: 0 auto;
-            margin: 50px auto 0 auto; 
-         }
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
+        }
+        
+        
         label {
-            display: block;
-            margin-bottom: 8px;
+            flex: 1;
+            color: #333;
+            margin-right: 10px;
+            text-align: right;
         }
 
         input {
@@ -116,6 +123,88 @@
             color: #fff; 
         }
 
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-container {
+            flex: 2;
+        }
+        
+        
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
     </style>
 
 </head>
@@ -128,21 +217,54 @@
         <li><a href="/agendamento">Agendamento</a></li>
         <li><a href="/index">Início</a></li>
     </ul>
-    <h2>Editar Serviço</h2>
+
+    <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+        <i class="fas fa-question"></i>
+    </div>
+    
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+            <div class="modal-header">
+                <strong> Ajuda Para Editar Serviços:</strong>
+            </div>
+            <div class="modal-body">
+                <p><strong>Editar Serviços:</strong> Edite os campos do formulário e clique em 'Salvar Alterações'</p>
+                <p><strong>Voltar:</strong> Clique no botão 'Voltar' para visualizar todos os serviços cadastrados.</p>
+            </div>
+        </div>
+    </div>
 
     <form  action="{{ url_for('editar_servico', servico_id=servico.id_ser) }}" method="post">
-        <label for="tipo_servico">Tipo de Serviço:</label>
-        <input type="text" id="tipo_servico" name="tipo_servico" value="{{ servico.tipo }}" required>
+        <h2>Editar Serviço</h2>
 
-        <label for="valor_servico">Valor do Serviço (R$):</label>
-        <input type="number" id="valor_servico" name="valor_servico" step="0.01"
-         placeholder="R$" value="{{ '%.2f' | format(servico.valor) }}" required>
+        <div class="form-row">
+            <label for="tipo_servico">Tipo de Serviço:</label>
+            <div class="input-container">
+                <input type="text" id="tipo_servico" name="tipo_servico" value="{{ servico.tipo }}" required>
+            </div>
+        </div>
 
+        <div class="form-row">
+            <label for="valor_servico">Valor do Serviço (R$):</label>
+                <div class="input-container">
+                    <input type="number" id="valor_servico" name="valor_servico" step="0.01"
+                        placeholder="R$" value="{{ '%.2f' | format(servico.valor) }}" required>
+                </div>
+        </div>
 
-        <button type="submit">Salvar Alterações</button>
+        <div class="form-row">
+            <button style="max-width: 100%; width: 400px;">Salvar Alterações</button>
+        </div>
+
 
         <div class=" link-container">
-            <a href="{{url_for('lista_servicos')}}">Voltar</a>
+            <a href="{{url_for('lista_servicos')}}"
+            style="max-width: 100%;
+            width: 370px;
+            margin: 0 auto; 
+            text-align:center;"
+            >Voltar</a>
         </div>
     </form>
 
@@ -154,5 +276,38 @@
         {% endif %}
     {% endwith %}
 
+    <script>
+        document.getElementById('telefone_cliente').addEventListener('input', function (e) {
+            var x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? '(' + x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    
+        // Formatar telefone ao carregar a página
+        window.onload = function() {
+            var event = new Event('input');
+            document.getElementById('telefone_cliente').dispatchEvent(event);
+        }
+    </script>
+
+    <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+    
 </body>
 </html>

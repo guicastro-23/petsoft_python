@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
     <title>Clientes</title>
 
     <style>
@@ -22,10 +24,10 @@
         }
         
         h2 {
-    margin-top: 20px;
-    text-align: center;
-    margin-bottom: 20px;
-}
+             margin-top: 20px;
+            text-align: center;
+             margin-bottom: 20px;
+        }
 
         
         ul {
@@ -53,19 +55,23 @@
         }
         
         form {
-          
-            display: flex;
-            flex-direction: column;
-            gap: 15px; /* Espaçamento entre os elementos */
             max-width: 400px;
             margin: 0 auto;
-            margin: 50px auto 0 auto; 
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
         }
         
+        
         label {
-            display: block;
-            margin-bottom: 8px;
+            flex: 1;
+            color: #333;
+            margin-right: 10px;
+            text-align: right;
         }
+
         
         input {
             padding: 8px;
@@ -147,7 +153,89 @@
             background-color: #4CAF50; 
             color: #fff; 
         }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-container {
+            flex: 2;
+        }
         
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
+
     </style>
 </head>
 <body>
@@ -160,36 +248,72 @@
         <li><a href="/index">Início</a></li>
     </ul>
 
+    <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+        <i class="fas fa-question"></i>
+    </div>
+    
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+            <div class="modal-header">
+                <strong>Ajuda para Adicionar Clientes:</strong>
+            </div>
+            <div class="modal-body">
+                <p><strong>Adicionar Cliente:</strong> Preencha os campos do formulário e clique em 'Adicionar Cliente' para salvar as informações.</p>
+                <p><strong>Visualizar Clientes:</strong> Clique no botão 'Ver Clientes' para visualizar a lista de clientes cadastrados.</p>
+            </div>
+        </div>
+    </div>
    
+        
+    <form method="POST" action="/clientes" onsubmit="return validateForm()">
         <h2>Adicionar Novo Cliente</h2>
-         <form method="POST" action="/clientes" onsubmit="return validateForm()">
-        <label for="nome_cliente">Nome do Cliente:</label>
-        <input type="text" id="nome_cliente" name="nome_cliente" pattern="[A-Za-zÀ-ú ]+" title="Apenas letras e espaços são permitidos" required>
-    
-        <label for="telefone_cliente">Telefone:</label>
-        <input type="tel" id="telefone_cliente" name="telefone_cliente" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" title="Informe um número de telefone no formato (XX) XXXXX-XXXX" required>
-        
-        <label for="tipo_endereco_cliente">Tipo de Endereço:</label>
-        <select id="tipo_endereco_cliente" name="tipo_endereco_cliente" required>
-            <option value="">Selecione um Tipo de Endereço</option>
-            <option value="Rua">Rua</option>
-            <option value="Avenida">Avenida</option>
-            <option value="Travessa">Travessa</option>
-            <option value="Rodovia">Rodovia</option>
-            <option value="Praca">Praça</option>
-            <option value="Estrada">Estrada</option>
-        </select>
+        <div class="form-row">
+            <label for="nome_cliente">Nome do Cliente:</label>
+            <div class="input-container">
+                <input type="text" id="nome_cliente" name="nome_cliente" pattern="[A-Za-zÀ-ú ]+" title="Apenas letras e espaços são permitidos" required>
+            </div>
+        </div>
 
-        <label for="endereco_cliente">Endereço:</label>
-        <input type="text" id="endereco_cliente" name="endereco_cliente" required>
+        <div class="form-row">
+            <label for="telefone_cliente">Telefone:</label>
+            <div class="input-container">
+                <input type="tel" id="telefone_cliente" name="telefone_cliente" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" title="Informe um número de telefone no formato (XX) XXXXX-XXXX" required>
+            </div>
+        </div>
 
-        
-        <label for="numero_endereco_cliente">Número:</label>
-        <input type="text" id="numero_endereco_cliente" name="numero_endereco_cliente" pattern="[0-9]*" title="Apenas números são permitidos" required>
+        <div class="form-row">
+            <label for="tipo_endereco_cliente">Tipo de Endereço:</label>
+            <div class="input-container">
+                <select id="tipo_endereco_cliente" name="tipo_endereco_cliente" required>
+                    <option value="">Selecione um Tipo de Endereço</option>
+                    <option value="Rua">Rua</option>
+                    <option value="Avenida">Avenida</option>
+                    <option value="Travessa">Travessa</option>
+                    <option value="Rodovia">Rodovia</option>
+                    <option value="Praca">Praça</option>
+                    <option value="Estrada">Estrada</option>
+                </select>
+            </div>
+        </div>
 
+        <div class="form-row">
+            <label for="endereco_cliente">Endereço:</label>
+            <div class="input-container">
+                <input type="text" id="endereco_cliente" name="endereco_cliente" required>
+            </div>   
+        </div>
+
+        <div class="form-row">
+            <label for="numero_endereco_cliente">Número:</label>
+            <div class="input-container">
+                <input type="text" id="numero_endereco_cliente" name="numero_endereco_cliente" pattern="[0-9]*" title="Apenas números são permitidos" required>
+            </div>
+        </div>
     
-        <button type="submit">Adicionar Cliente</button>
-    
+        <div class="form-row">
+            <button style="max-width: 100%; width: 400px;">Adicionar Cliente</button>
+        </div>
         
          <div class="link-container">
            <a href="{{ url_for('lista_clientes') }}"
@@ -232,5 +356,26 @@
         });
     </script>
     
+    <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+
+
 </body>
 </html>

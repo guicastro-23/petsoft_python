@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <title>Editar Animal</title>
 
     <style>
-      body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-h1 {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    margin: 0;
-    text-align: center;
-}
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
 
-h2 {
-    margin-top: 20px;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        h2 {
+            margin-top: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
         
         ul {
             list-style-type: none;
@@ -61,20 +62,13 @@ h2 {
             box-shadow: 0px 0px 5px 0px #ccc;
         }
         
-        .form-row {
-            display: flex;
-           
-            justify-content: left;
-            align-items: center;
-            margin-bottom: 10px;
-        }
         
         label {
+            flex: 1;
             color: #333;
-            margin-bottom: 5px; /* Adicione margem inferior para espaçamento vertical */
-            text-align: left;
+            margin-right: 10px;
+            text-align: right;
         }
-        
         .input-container {
             
             flex: 2; 
@@ -150,6 +144,89 @@ h2 {
             background-color: #4CAF50;
             color: white;
         }
+
+        .form-row {
+            display: flex;
+           
+            justify-content: left;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-container {
+            flex: 2;
+        }
+        
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
     </style>
 
 </head>
@@ -164,56 +241,89 @@ h2 {
         <li><a href="/index">Início</a></li>
     </ul>
 
+    <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+        <i class="fas fa-question"></i>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+            <div class="modal-header">
+                <strong> Ajuda Para Editar Animais:</strong>
+            </div>
+            <div class="modal-body">
+                <p><strong>Editar Animais:</strong> Edite os campos do formulário e clique em 'Salvar Alterações'.</p>
+                <p><strong>Voltar: </strong> Clique no botão 'Voltar' para visualizar todos os animais cadastrados.</p>
+            </div>
+        </div>
+    </div>
+
+
     <form action="{{ url_for('editar_animal', animal_id=animal.id_an) }}" method="POST">
         <h2>Editar Animal</h2>
         <div class="form-row">
             <label for="nome_animal">Nome do Animal:</label>
-            <input type="text" id="nome_animal" name="nome_animal" value="{{ animal.nome }}" pattern="[A-Za-zÀ-ú ]+" required>
+            <div class="input-container">
+                <input type="text" id="nome_animal" name="nome_animal" value="{{ animal.nome }}" pattern="[A-Za-zÀ-ú ]+" required>
+            </div>   
         </div>
+
         <div class="form-row">
             <label for="tipo_animal">Tipo de Animal:</label>
-            <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro" {{ 'checked' if animal.tipo_animal == 'Cachorro' else '' }}> Cachorro
-            <input type="radio" id="gato" name="tipo_animal" value="Gato" {{ 'checked' if animal.tipo_animal == 'Gato' else '' }}> Gato
+            <div class="input-container">
+                <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro" {{ 'checked' if animal.tipo_animal == 'Cachorro' else '' }}> Cachorro
+                <input type="radio" id="gato" name="tipo_animal" value="Gato" {{ 'checked' if animal.tipo_animal == 'Gato' else '' }}> Gato
+            </div>
         </div>
 
         <div class="form-row">
             <label for="data_nasc_animal">Data de Nascimento:</label>
-            <input type="date" id="data_nasc_animal" name="data_nasc_animal" value="{{ animal.data_nasc.strftime('%Y-%m-%d') }}" required>
+            <div class="input-container">
+                 <input type="date" id="data_nasc_animal" name="data_nasc_animal" value="{{ animal.data_nasc.strftime('%Y-%m-%d') }}" required>
+            </div>  
         </div>
 
         <div class="form-row">
             <label for="agressivo_animal">Agressivo:</label>
-            <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True" {{ 'checked' if animal.agressivo else '' }}> Sim
-        </div>
+            <div class="input-container">
+                <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True" {{ 'checked' if animal.agressivo else '' }}> Sim
+            </div>
+         </div>
 
         <div class="form-row">
             <label for="porte_animal">Porte:</label>
-            <select id="porte_animal" name="porte_animal">
-                <option value="Pequeno" {{ 'selected' if animal.porte == 'Pequeno' else '' }}>Pequeno</option>
-                <option value="Médio" {{ 'selected' if animal.porte == 'Médio' else '' }}>Médio</option>
-                <option value="Grande" {{ 'selected' if animal.porte == 'Grande' else '' }}>Grande</option>
-            </select>
+            <div class="input-container">
+                <select id="porte_animal" name="porte_animal">
+                    <option value="Pequeno" {{ 'selected' if animal.porte == 'Pequeno' else '' }}>Pequeno</option>
+                    <option value="Médio" {{ 'selected' if animal.porte == 'Médio' else '' }}>Médio</option>
+                    <option value="Grande" {{ 'selected' if animal.porte == 'Grande' else '' }}>Grande</option>
+                </select>
+            </div>
         </div>
 
          <div class="form-row">
             <label for="pelagem_animal">Tipo de Pelagem:</label>
-            <select id="pelagem_animal" name="pelagem_animal">
-                <option value="Curta" {{ 'selected' if animal.pelagem == 'Curta' else '' }}>Curta</option>
-                <option value="Longa" {{ 'selected' if animal.pelagem == 'Longa' else '' }}>Longa</option>
-                <option value="Encaracolada" {{ 'selected' if animal.pelagem == 'Encaracolada' else '' }}>Encaracolada</option>
-                <option value="Dupla" {{ 'selected' if animal.pelagem == 'Dupla' else '' }}>Dupla</option>
-                <option value="Mista" {{ 'selected' if animal.pelagem == 'Mista' else '' }}>Mista</option>
-            </select>
+            <div class="input-container">
+                <select id="pelagem_animal" name="pelagem_animal">
+                    <option value="Curta" {{ 'selected' if animal.pelagem == 'Curta' else '' }}>Curta</option>
+                    <option value="Longa" {{ 'selected' if animal.pelagem == 'Longa' else '' }}>Longa</option>
+                    <option value="Encaracolada" {{ 'selected' if animal.pelagem == 'Encaracolada' else '' }}>Encaracolada</option>
+                    <option value="Dupla" {{ 'selected' if animal.pelagem == 'Dupla' else '' }}>Dupla</option>
+                    <option value="Mista" {{ 'selected' if animal.pelagem == 'Mista' else '' }}>Mista</option>
+                </select>
+            </div>  
         </div>
 
         <div class="form-row">
             <label for="observacoes_animal">Observações:</label>
-            <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50">{{ animal.obs }}</textarea>
+            <div class="input-container">
+                <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50">{{ animal.obs }}</textarea>
+            </div>
         </div>
 
         <div class="form-row">
-        <button style="max-width: 100%; width: 400px;" >Salvar alterações</button>
-    </div>
+              <button style="max-width: 100%; width: 400px;" >Salvar alterações</button>
+         </div>
 
         <div class="link-container">
             <a href="{{ url_for('lista_animais') }}"
@@ -231,5 +341,26 @@ h2 {
     {% endif %}
     {% endwith %}
 
-    <div>
+    
+
+        <script>
+            // Close the modal if the clicked element is not modal-content
+            window.onclick = function(event) {
+                var modal = document.getElementById('myModal');
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        
+            // Show the modal when the F2 key is pressed
+            document.onkeydown = function(event) {
+                event = event || window.event;
+                var modal = document.getElementById('myModal');
+                if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                    modal.style.display = 'block';
+                    event.preventDefault(); // Prevent the default F2 action
+                }
+            }
+        </script>
+        
 </body>

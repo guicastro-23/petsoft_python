@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <title> Lista De Animais </title>
         <style>
             body {
@@ -179,6 +180,78 @@
             .search-button:hover {
                 background-color: #45a049;
             }
+
+            
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
             
         </style>
 </head>
@@ -194,6 +267,25 @@
     
     <div class = "button-edit">
           <a  href="{{ url_for('listar_animais') }}" class="view-button"> Novo Animal</a>
+    </div>
+
+    <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+        <i class="fas fa-question"></i>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+            <div class="modal-header">
+                <strong> Ajuda Para Editar Animais:</strong>
+            </div>
+            <div class="modal-body">
+                <p><strong>Novo Animal:</strong> Botão para ir para a página de adicionar novos animais.</p>
+                <p><strong>Buscar:</strong> Caixa para filtrar os animais.</p>
+                <p><strong>Editar:</strong> Botão para ir para a página de editar os animais.</p>
+                <p><strong>EXcluir:</strong> Botão para excluir o animal.</p>
+            </div>
+        </div>
     </div>
 
      
@@ -255,10 +347,31 @@
              
 </body>
 
-<script>
-    function confirmExclusao(nomeAnimal) {
-        return confirm(`Tem certeza que deseja excluir o animal "${nomeAnimal}"?`);
-    }
-</script>
+    <script>
+        function confirmExclusao(nomeAnimal) {
+            return confirm(`Tem certeza que deseja excluir o animal "${nomeAnimal}"?`);
+        }
+    </script>
+
+    <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+
 
 </html>

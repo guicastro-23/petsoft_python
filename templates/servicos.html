@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Serviços</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
         body {
@@ -67,19 +69,30 @@
         }
 
         form {
+            max-width: 400px;
+            margin: 0 auto;
             margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
+            flex: 1;
+            color: #333;
+            margin-right: 10px;
+            text-align: right;
         }
-
         input {
             padding: 8px;
             width: 100%;
             box-sizing: border-box;
             margin-bottom: 10px;
+        }
+
+        .input-container {
+            flex: 2;
         }
 
         button {
@@ -113,14 +126,7 @@
             margin-left: 10px; /* Adiciona um espaçamento à esquerda para separar do texto adjacente */
         }
       
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px; 
-            max-width: 400px;
-            margin: 0 auto;
-            margin: 50px auto 0 auto; 
-         }
+    
          .container {
             display: flex;
             justify-content: space-between;
@@ -154,9 +160,103 @@
             background-color: #4CAF50; 
             color: #fff; 
         }
+
+        .help-button {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            background-color: #3498db; /* Cor de fundo azul */
+        }
+
+        .help-button:hover {
+            background-color: #2980b9; /* Cor ao passar o mouse */
+        }
+
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
+
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db; /* Cor de fundo azul */
+            color: white;
+            padding: 10px;
+            border-radius: 50%; /* Forma circular */
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* Sombra para profundidade */
+            z-index: 1000; /* Assegura que o ícone fique acima de outros elementos */
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9; /* Azul mais escuro ao passar o mouse */
+        }
+        
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+       
     </style>
 
-    </style>
+
 
 </head>
 <body>
@@ -169,20 +269,53 @@
             <li><a href="/index">Início</a></li>
         </ul>
 
-
-      
+        <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+            <i class="fas fa-question"></i>
+        </div>
+        
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+                <div class="modal-header">
+                    <strong> Ajuda Para Adicionar Serviços:</strong>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Adicionar Novo Serviço:</strong> Preencha os campos do formulário e clique em 'Adicionar Serviço'.</p>
+                    <p><strong>Ver Serviços:</strong> Clique no botão 'Ver Serviços' para visualizar todos os serviços cadastrados.</p>
+                </div>
+            </div>
+        </div>
+    
+    
            
             <form method="POST" action="/servicos">
-             <h2>Adicionar Novo Serviço</h2>   
-              <label for="tipo_servico">Tipo de Serviço:</label>
-                <input type="text" id="tipo_servico" name="tipo_servico" required>
-
-                <label for="valor_servico">Valor do Serviço:</label>
-                <input type="number" id="valor_servico" name="valor_servico" step="0.01" placeholder="R$" required>
+                <h2>Adicionar Novo Serviço</h2>   
+                <div class="form-row">
+                    <label for="tipo_servico">Tipo de Serviço:</label>
+                    <div class="input-container">
+                        <input type="text" id="tipo_servico" name="tipo_servico" required> 
+                    </div>   
+                </div>
                 
-                <button type="submit">Adicionar Serviço</button>
+                <div class="form-row">
+                    <label for="valor_servico">Valor do Serviço:</label>
+                    <div class="input-container">
+                        <input type="number" id="valor_servico" name="valor_servico" step="0.01" placeholder="R$" required>
+                    </div>
+                </div>
+              
+                
+                <div class="form-row">
+                     <button style="max-width: 100%; width: 400px;" >Adicionar Serviço</button>
+                </div>
+
                 <div class=" link-container">
-                    <a href="{{url_for('lista_servicos')}}">Ver Serviços</a>
+                    <a href="{{url_for('lista_servicos')}}"
+                    style="max-width: 100%;
+                    width: 370px;
+                    margin: 0 auto; 
+                    text-align:center;"
+                    >Ver Serviços</a>
                 </div>
             </form>
         
@@ -195,6 +328,29 @@
         </div>
     {% endif %}
     {% endwith %}
+
+    <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+    
+
+    
 
     
 </body>
