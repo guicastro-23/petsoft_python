@@ -135,7 +135,9 @@
         <input type="text" id="tipo_servico" name="tipo_servico" value="{{ servico.tipo }}" required>
 
         <label for="valor_servico">Valor do Serviço (R$):</label>
-        <input type="number" id="valor_servico" name="valor_servico" step="0.01" value="{{ servico.valor }}" required>
+        <input type="number" id="valor_servico" name="valor_servico" step="0.01"
+         placeholder="R$" value="{{ '%.2f' | format(servico.valor) }}" required>
+
 
         <button type="submit">Salvar Alterações</button>
 

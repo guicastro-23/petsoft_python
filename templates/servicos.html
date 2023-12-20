@@ -177,9 +177,9 @@
               <label for="tipo_servico">Tipo de Serviço:</label>
                 <input type="text" id="tipo_servico" name="tipo_servico" required>
 
-                <label for="valor_servico">Valor do Serviço (R$):</label>
-                <input type="number" id="valor_servico" name="valor_servico" step="0.01" required>
-
+                <label for="valor_servico">Valor do Serviço:</label>
+                <input type="number" id="valor_servico" name="valor_servico" step="0.01" placeholder="R$" required>
+                
                 <button type="submit">Adicionar Serviço</button>
                 <div class=" link-container">
                     <a href="{{url_for('lista_servicos')}}">Ver Serviços</a>
@@ -195,5 +195,7 @@
         </div>
     {% endif %}
     {% endwith %}
+
+    
 </body>
 </html>

@@ -26,6 +26,14 @@ app.config['SECRET_KEY'] = 'chave_secreta'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+def format_currency(value):
+    return f"R$ {value:,.2f}".replace('.', ',')
+
+
+# Registro do filtro para o Jinja2
+app.jinja_env.filters['format_currency'] = format_currency
+
+
 # Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
     idCliente = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -504,16 +512,20 @@ def buscar_servicos():
 #---------------- Rotas de serviço --------------------------------------
 @app.route('/lista_servicos', methods=['GET'])
 def lista_servicos():
-    show_all = request.args.get('showAll', default=False, type=bool)
-    search_term = request.args.get('searchTerm', default='', type=str).strip()
+    page = request.args.get('page', 1, type=int)
+    search_term = request.args.get('searchTerm', '')
 
-    # Lógica para obter a lista de servicos com base nos parâmetros de consulta
-    if show_all:
-        servicos = Servico.query.all()
+    if search_term:
+        # Filtra serviços pelo nome e ordena alfabeticamente
+        pagination = Servico.query.filter(Servico.tipo.ilike(f'%{search_term}%')).order_by(Servico.tipo).paginate(page=page, per_page=10, error_out=False)
     else:
-       servicos = Servico.query.filter(func.lower(Servico.tipo).contains(func.lower(search_term))).all()
+        # Mostra todos os serviços ordenados alfabeticamente
+        pagination = Servico.query.order_by(Servico.tipo).paginate(page=page, per_page=10, error_out=False)
 
-    return render_template('lista_servicos.html', servicos=servicos, show_all=show_all, search_term=search_term)
+    servicos = pagination.items
+    total_pages = pagination.pages
+
+    return render_template('lista_servicos.html', servicos=servicos, total_pages=total_pages, current_page=page, pagination=pagination)
 
 
 @app.route('/servicos', methods=['GET', 'POST'])
@@ -522,7 +534,7 @@ def listar_servicos():
         # Process the form data when a new service is added
         tipo_servico = request.form['tipo_servico']
         valor_servico = request.form['valor_servico']
-
+        tipo_servico = tipo_servico.capitalize()
         # Check if a service with the same type already exists
         existing_servico = Servico.query.filter_by(tipo=tipo_servico).first()
         if existing_servico:
@@ -551,16 +563,16 @@ def listar_servicos():
 @app.route('/servicos', methods=['GET', 'POST'])
 def adicionar_servico():
     if request.method == 'POST':
-        tipo_servico = request.form['tipo_servico']
+        tipo_servico = request.form['tipo_servico'].capitalize()  # Alterado para capitalizar a primeira letra
         valor_servico = request.form['valor_servico']
 
-        # Check if a service with the same type already exists
+        # Verifica se já existe um serviço com o mesmo tipo
         existing_servico = Servico.query.filter_by(tipo=tipo_servico).first()
         if existing_servico:
             flash('Um serviço com este tipo já existe.', 'error')
         else:
             try:
-                # Validate that the 'valor' is a non-negative float
+                # Valida se o 'valor' é um float não negativo
                 valor_servico = float(valor_servico)
                 if valor_servico < 0:
                     flash('O valor do serviço não pode ser negativo.', 'error')
@@ -588,12 +600,13 @@ def editar_servico(servico_id):
         if existing_servico:
             flash('Um serviço com este tipo já existe.', 'error')
         else:
+            tipo_servico = tipo_servico.capitalize()
             servico.tipo = tipo_servico
             servico.valor = valor_servico
 
             db.session.commit()
             flash('Serviço atualizado com sucesso.', 'success')
-            return redirect(url_for('listar_servicos'))
+            return redirect(url_for('lista_servicos'))
 
     return render_template('editar_servico.html', servico=servico)
 
@@ -605,7 +618,7 @@ def excluir_servico(servico_id):
     db.session.commit()
 
     flash('Serviço excluído com sucesso.', 'success')
-    return redirect(url_for('listar_servicos'))
+    return redirect(url_for('lista_servicos'))
 # ------------------ fim rotas de serviço -----------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
