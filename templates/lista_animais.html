@@ -128,6 +128,34 @@
                 font-weight: bold; /* Deixa o texto em negrito */
                 margin-left: 10px; /* Adiciona um espaçamento à esquerda para separar do texto adjacente */
             }      
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+                padding: 20px;
+                list-style: none; /* Remove o estilo de lista padrão */
+            }
+        
+            .pagination a, .pagination span {
+                margin: 0 5px;
+                padding: 5px 10px;
+                border: 1px solid #4CAF50;
+                border-radius: 5px; /* Bordas arredondadas */
+                text-decoration: none; /* Remove o sublinhado dos links */
+                color: #4CAF50;
+                background-color: #fff;
+                transition: background-color 0.3s, color 0.3s; /* Efeito suave ao mudar cores */
+            }
+        
+            .pagination a:hover {
+                background-color: #4CAF50; /* Cor de fundo ao passar o mouse */
+                color: #fff; /* Cor do texto ao passar o mouse */
+            }
+        
+            .pagination span {
+                border-color: #ddd; /* Cor da borda para o número da página atual */
+                color: #666; /* Cor do texto para o número da página atual */
+            }
         </style>
 </head>
 <body>
@@ -160,13 +188,29 @@
                             <td>{{ animal.tipo_animal }}</td> 
                             <td>{{ animal.cliente.nome }}</td> 
                              <td>
-                                <a class="edit-link" href="{{ url_for('editar_animal', animal_id=animal.id_an) }}">Editar</a>
-                                <a class="delete-link" href="{{url_for('excluir_animal', animal_id=animal.id_an)}}" onclick="return confirmExclusao('{{ animal.nome }}')"> Excluir</a>
+                                <a class="edit-link">Editar</a>
+                                <a class="delete-link"  onclick="return confirm('Tem certeza que deseja excluir este serviço?')"> Excluir</a>
                             </td>
                          </tr>
                     {% endfor%}
                 </tbody>
             </table>
+            <div class="pagination">
+                {% if prev_url %}
+                    <a href="{{ prev_url }}">&laquo; Anterior</a>
+                {% endif %}
+                {% for p in range(1, total_pages + 1) %}
+                    {% if p == current_page %}
+                        <span>{{ p }}</span>
+                    {% else %}
+                        <a href="{{ url_for('lista_animais', page=p) }}">{{ p }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if next_url %}
+                    <a href="{{ next_url }}">Próximo &raquo;</a>
+                {% endif %}
+            </div>
+
 
             {% with messages = get_flashed_messages() %}
             {% if messages %}
