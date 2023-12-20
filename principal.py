@@ -290,22 +290,26 @@ def listar_animais():
                             return redirect(url_for('lista_animais'))
     return render_template('animais.html', animais=animais, clientes=clientes)
 
-
 @app.route('/lista_animais', methods=['GET'])
 def lista_animais():
-  
     page = request.args.get('page', 1, type=int)
+    search_term = request.args.get('searchTerm', '')
 
-    animais = Animal.query.order_by(Animal.id_an).paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
-    total_animais = Animal.query.count()
-    total_pages = ceil(total_animais / ITEMS_PER_PAGE)
+    query = Animal.query
 
-    # Gera URLs para as páginas anterior e próxima
-    next_url = url_for('lista_animais', page=animais.next_num) if animais.has_next else None
-    prev_url = url_for('lista_animais', page=animais.prev_num) if animais.has_prev else None
+    if search_term:
+        # Filtrar animais pelo nome, espécie ou nome do tutor
+        query = query.join(Cliente).filter(
+            Animal.nome.ilike(f'%{search_term}%') |
+            Animal.tipo_animal.ilike(f'%{search_term}%') |
+            Cliente.nome.ilike(f'%{search_term}%')
+        )
 
-    return render_template('lista_animais.html', animais=animais.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url)
+    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    animais = pagination.items
+    total_pages = pagination.pages
 
+    return render_template('lista_animais.html', animais=animais, total_pages=total_pages, current_page=page)
 
 # Editar Animal
 @app.route('/editar_animal/<int:animal_id>', methods=['GET', 'POST'])

@@ -67,6 +67,7 @@
             th {
                 background-color: #4CAF50;
                 color: white;
+                text-align: center;
             }
     
             form {
@@ -156,6 +157,29 @@
                 border-color: #ddd; /* Cor da borda para o número da página atual */
                 color: #666; /* Cor do texto para o número da página atual */
             }
+            .search-container {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .search-input {
+                width: 250px; /* Largura do campo de busca */
+                padding: 8px;
+            }
+            
+            .search-button {
+                padding: 8px 15px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .search-button:hover {
+                background-color: #45a049;
+            }
+            
         </style>
 </head>
 <body>
@@ -172,6 +196,16 @@
           <a  href="{{ url_for('listar_animais') }}" class="view-button"> Novo Animal</a>
     </div>
 
+     
+    <div class="search-container">
+        <form action="/lista_animais" method="get">
+            <input type="text" name="searchTerm" class="search-input" placeholder="Buscar por nome, espécie ou tutor" />
+            <button type="submit" class="search-button">Buscar</button>
+        </form>
+    </div>
+    
+
+
         <h2> Listagens de Animais</h2>
             <table>
                 <thead>
@@ -183,15 +217,14 @@
                 </head>
                 <tbody>
                     {% for animal in animais %}
-                         <tr>
-                            <td>{{ animal.nome }}</td>
-                            <td>{{ animal.tipo_animal }}</td> 
-                            <td>{{ animal.cliente.nome }}</td> 
-                             <td>
-                                <a class="edit-link">Editar</a>
-                                <a class="delete-link"  onclick="return confirm('Tem certeza que deseja excluir este serviço?')"> Excluir</a>
-                            </td>
-                         </tr>
+                    <tr>
+                        <td>{{ animal.nome }}</td>
+                        <td>{{ animal.tipo_animal }}</td> 
+                        <td>{{ animal.cliente.nome }}</td> 
+                         <td>
+                            <a class="edit-link" href="{{ url_for('editar_animal', animal_id=animal.id_an) }}">Editar</a>
+                            <a class="delete-link" href="{{url_for('excluir_animal', animal_id=animal.id_an)}}" onclick="return confirmExclusao('{{ animal.nome }}')"> Excluir</a> </td>
+                     </tr>
                     {% endfor%}
                 </tbody>
             </table>
