@@ -97,20 +97,20 @@ def redirecionar_para_login():
 def home():
     return render_template('index.html')
 # ------------------------------Rotas de cliente ---------------------------------------
-
 @app.route('/lista_clientes', methods=['GET'])
 def lista_clientes():
     page = request.args.get('page', 1, type=int)
     search_term = request.args.get('searchTerm', '')
 
     if search_term:
-        # Filtra clientes pelo nome ou telefone
+        # Filtra e ordena clientes pelo nome ou telefone em ordem alfabética
         query = Cliente.query.filter(
             Cliente.nome.ilike(f'%{search_term}%') | 
             Cliente.telefone.ilike(f'%{search_term}%')
-        )
+        ).order_by(Cliente.nome)
     else:
-        query = Cliente.query
+        # Ordena todos os clientes pelo nome em ordem alfabética
+        query = Cliente.query.order_by(Cliente.nome)
 
     pagination = query.paginate(page=page, per_page=10, error_out=False)
     clientes = pagination.items
