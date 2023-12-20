@@ -151,14 +151,14 @@
     <h1>Petsoft</h1>
     <ul>
         <li><a href="/lista_clientes">Clientes</a></li>
-        <li><a href="/animais">Animais</a></li>
+        <li><a href="/lista_animais">Animais</a></li>
         <li><a href="/lista_servicos">Serviços</a></li>
         <li><a href="/agendamento">Agendamento</a></li>
         <li><a href="/index">Início</a></li>
     </ul>
 
     <h1>Nova Ordem de Serviço</h1>
-    <form method="POST" action="/salvar_ordem">
+    <form method="POST" action="/nova_ordem">
         <!-- Campos do formulário -->
         <label for="cliente-nome">Nome do Cliente:</label>
         <input type="text" id="cliente-nome" name="cliente_nome" autocomplete="off">
@@ -174,15 +174,27 @@
             <!-- A lista de animais será preenchida dinamicamente via AJAX -->
         </select>
 
-        <label for="servicos">Serviços Disponíveis:</label>
-        <select id="servicos" name="servicos[]" multiple required>
-            {% for servico in servicos %}
-            <option value="{{ servico.id_ser }}">{{ servico.tipo }} - R$ {{ servico.valor }}</option>
-            {% endfor %}
-        </select>
+        <label for="servico-nome">Tipo de Serviço:</label>
+        <input type="text" id="servico-nome" name="servico_tipo" autocomplete="off">
+        <div id="servico-dropdown" class="dropdown-content">
+         <!-- Service names will be populated here -->
+        </div>
+
 
         <label for="servicos-selecionados">Serviços Selecionados:</label>
-        <ul id="servicos-selecionados"></ul>
+        <table id="servicos-selecionados">
+            <thead>
+                 <tr>
+                     <th>Serviço</th>
+                     <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+             <!-- Selected services will be appended here -->
+            </tbody>
+        </table>
+        <input type="hidden" id="servicos-ids" name="servicos_ids" value="">
+
 
         <label for="valor-total">Valor Total:</label>
         <input type="text" id="valor-total" name="valor_total" readonly>
@@ -195,9 +207,6 @@
 
         <!-- Adicione outros campos conforme necessário -->
 
-        <!-- Adicione botões para adicionar e remover serviço -->
-        <button type="button" id="adicionar-servico">Adicionar Serviço</button>
-        <button type="button" id="remover-servico">Remover Serviço</button>
 
         <button type="submit">Salvar Ordem</button>
     </form>
@@ -361,6 +370,122 @@
         }
         
     </script>
+
+    <script>
+   
+    </script>
+    <script>
+        
+        
+    </script>
+    <script>
+        function atualizarListaServicosSelecionados() {
+            var tbody = $('#servicos-selecionados tbody');
+            tbody.empty();
+            var valorTotal = 0;
+        
+            $.each(servicosSelecionados, function(index, service) {
+                var serviceDetails = service.text.split(' - R$ ');
+                var serviceName = serviceDetails[0];
+                var serviceValue = parseFloat(serviceDetails[1]);
+                valorTotal += serviceValue;
+        
+                tbody.append('<tr><td>' + serviceName + '</td><td>R$ ' + serviceValue.toFixed(2) + '</td></tr>');
+            });
+        
+            $('#valor-total').val('R$ ' + valorTotal.toFixed(2));
+        }
+        
+        
+    </script>  
+    <script>
+        $(document).ready(function () {
+            var servicosSelecionados = [];
+        
+            // Função para adicionar serviço à tabela
+            function adicionarServicoTabela(serviceId, serviceInfo) {
+                var serviceAlreadySelected = servicosSelecionados.some(service => service.id === serviceId);
+                if (!serviceAlreadySelected) {
+                    servicosSelecionados.push({ id: serviceId, text: serviceInfo });
+                    
+                    var serviceDetails = serviceInfo.split(' - R$ ');
+                    var serviceName = serviceDetails[0];
+                    var serviceValue = parseFloat(serviceDetails[1]);
+                    
+                    var tbody = $('#servicos-selecionados tbody');
+                    tbody.append('<tr><td>' + serviceName + '</td><td>R$ ' + serviceValue.toFixed(2) + '</td></tr>');
+            
+                    // Atualiza o campo oculto com os IDs dos serviços selecionados
+                    $('#servicos-ids').val(servicosSelecionados.map(s => s.id).join(','));
+            
+                    atualizarValorTotal();
+                }
+            }
+            function selectService(serviceId, serviceInfo) {
+                var serviceAlreadySelected = servicosSelecionados.some(service => service.id === serviceId);
+                if (!serviceAlreadySelected) {
+                    servicosSelecionados.push({ id: serviceId, text: serviceInfo });
+                    atualizarListaServicosSelecionados();
+                }
+                $('#servico-dropdown').hide();
+            }
+            $('#servico-nome').keyup(function() {
+                var query = $(this).val();
+            
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/buscar_servicos', // Endpoint to fetch services
+                        method: 'GET',
+                        data: { 'query': query },
+                        success: function(data) {
+                            $('#servico-dropdown').empty().show();
+                            $.each(data.servicos, function(index, servico) {
+                                var servicoInfo = servico.tipo + ' - R$ ' + servico.valor;
+                                $('#servico-dropdown').append('<a href="#" data-id="' + servico.id + '">' + servicoInfo + '</a>');
+                            });
+    
+                            // Anexar evento de clique após adicionar os links
+                            $('#servico-dropdown').on('click', 'a', function(e) {
+                                e.preventDefault();
+                                var serviceId = $(this).data('id');
+                                var serviceInfo = $(this).text();
+                                selectService(serviceId, serviceInfo);
+                            });
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                } else {
+                    $('#servico-dropdown').hide();
+                }
+            });
+    
+            
+            
+        
+            // Função para atualizar o valor total
+            function atualizarValorTotal() {
+                var valorTotal = servicosSelecionados.reduce((total, service) => {
+                    var serviceValue = parseFloat(service.text.split(' - R$ ')[1]);
+                    return total + serviceValue;
+                }, 0);
+        
+                $('#valor-total').val('R$ ' + valorTotal.toFixed(2));
+            }
+        
+            // Evento de clique para adicionar serviços
+            $('#servico-dropdown').on('click', 'a', function(e) {
+                e.preventDefault();
+                var serviceId = $(this).data('id');
+                var serviceInfo = $(this).text();
+                adicionarServicoTabela(serviceId, serviceInfo);
+            });
+        
+            // Eventos AJAX e outros códigos...
+        });
+        
+    </script>            
     <script src="path/to/your/scripts.js"></script>
 </body>
 

@@ -331,7 +331,7 @@ def listar_agendamento():
 #------------------- Rota de Ordens --------------------------------------------
 
 # Rota para a página "Nova Ordem"
-@app.route('/nova-ordem', methods=['GET', 'POST'])
+@app.route('/nova_ordem', methods=['GET', 'POST'])
 def nova_ordem():
     # Assuming you have a Servico model
     servicos = Servico.query.all()
@@ -344,10 +344,10 @@ def nova_ordem():
         valor_total = sum(float(Servico.query.get(servico_id).valor) for servico_id in servicos_ids)
         data_ordem = datetime.strptime(request.form['data_ordem'], '%Y-%m-%d')
         descricao = request.form['descricao']
-
+        servicos_ids = [int(id) for id in request.form['servicos_ids'].split(',') if id.isdigit()]
         # Create a new order and add it to the database
         nova_ordem = OrdemDeServico(
-            tipo='Tipo Exemplo',
+            tipo=servicos_ids,
             descricao=descricao,
             valorTotal=valor_total,
             data_in=data_ordem,
@@ -372,51 +372,9 @@ def nova_ordem():
         return redirect(url_for('index'))  # Replace with the appropriate route
 
     # Render the form with the list of services
-    return render_template('nova-ordem.html', servicos=servicos)
+    return render_template('nova_ordem.html', servicos=servicos)
 
 
-# Rota para salvar a ordem de serviço
-@app.route('/salvar_ordem', methods=['POST'])
-def salvar_ordem():
-    if request.method == 'POST':
-        animal_id = request.form['animal']
-        cliente_id = request.form['cliente']
-        servicos_ids = request.form.getlist('servicos[]')
-        valor_total = float(request.form['valor_total'])
-        data_ordem = datetime.strptime(request.form['data_ordem'], '%Y-%m-%d')
-        descricao = request.form['descricao']
-
-        # Example: You may want to check if the animal, client, and services exist in the database
-        # animal = Animal.query.get(animal_id)
-        # cliente = Cliente.query.get(cliente_id)
-        # servicos = Servico.query.filter(Servico.id_ser.in_(servicos_ids)).all()
-
-        # Create a new order and add it to the database
-        nova_ordem = OrdemDeServico(
-            tipo='Tipo Exemplo',
-            descricao=descricao,
-            valorTotal=valor_total,
-            data_in=data_ordem,
-            Usuario_id_us=1,  # Replace with the actual user ID
-            Cliente_idCliente=cliente_id,
-            Animal_id_an=animal_id,
-            Animal_Cliente_idCliente=cliente_id
-        )
-
-        # Associate services with the order
-        # nova_ordem.servicos.extend(servicos)
-
-        db.session.add(nova_ordem)
-
-        try:
-            db.session.commit()
-            flash('Ordem de serviço adicionada com sucesso.', 'success')
-        except IntegrityError:
-            db.session.rollback()
-            flash('Erro ao adicionar a ordem de serviço.', 'error')
-
-        return redirect(url_for('index'))  
-    
 
 @app.route('/eventos', methods=['GET'])
 def obter_eventos():
@@ -480,6 +438,14 @@ def get_animais_por_cliente(clientId):
         # Handle exceptions (e.g., client not found, database errors)
         print(e)  # Log the error for debugging
         return jsonify({'error': 'Error fetching animals for the client'}), 500
+    
+@app.route('/buscar_servicos')
+def buscar_servicos():
+    query = request.args.get('query', '').strip()
+    services = Servico.query.filter(Servico.tipo.ilike(f'%{query}%')).all()
+    services_list = [{'id': service.id_ser, 'tipo': service.tipo, 'valor': service.valor} for service in services]
+    return jsonify({'servicos': services_list})
+
 
 # ------------------ fim das Rotas de Ordens -----------------------------------
 
