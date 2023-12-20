@@ -197,7 +197,7 @@
                 {%for cliente in clientes %}
                     <tr>
                         <td>{{cliente.nome}}</td>
-                        <td>{{ cliente.tipo_endereco }} {{ cliente.logradouro }}</td>
+                        <td>{{ cliente.tipo_endereco }} {{ cliente.logradouro }}, {{cliente.numero_endereco}}</td>
                         <td  class="text-right">{{cliente.telefone}}</td>
                         
                         <td>
