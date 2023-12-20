@@ -10,6 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
+from math import ceil
 
 
 
@@ -244,21 +245,22 @@ def listar_animais():
                                 return redirect(url_for('lista_animais'))  
     return render_template('animais.html', animais=animais, clientes=clientes)
 
+ITEMS_PER_PAGE = 10
 @app.route('/lista_animais', methods=['GET'])
 def lista_animais():
-    
-    show_all = request.args.get('showAll', default=False, type=bool)
-    search_term = request.args.get('searchTerm', default='', type=str).strip()
+  
+    page = request.args.get('page', 1, type=int)
 
-    # Lógica para obter a lista de animais com base nos parâmetros de consulta
-    if show_all:
-        animais = Animal.query.all()
-    else:
-        animais = Animal.query.filter(func.lower(Animal.nome).contains(func.lower(search_term))).all()
-    
-    return render_template('lista_animais.html', animais=animais, show_all=show_all, search_term=search_term)
+    animais = Animal.query.order_by(Animal.id_an).paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
+    total_animais = Animal.query.count()
+    total_pages = ceil(total_animais / ITEMS_PER_PAGE)
 
-#--------------------- Fim das 
+    # Gera URLs para as páginas anterior e próxima
+    next_url = url_for('lista_animais', page=animais.next_num) if animais.has_next else None
+    prev_url = url_for('lista_animais', page=animais.prev_num) if animais.has_prev else None
+
+    return render_template('lista_animais.html', animais=animais.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url)
+#--------------------- Fim das rotas de animais ----------------------------------------------------------
 
 @app.route('/agendamento')
 def listar_agendamento():
