@@ -176,6 +176,13 @@
         <a href="{{ url_for('listar_clientes') }}" class="view-button">Novo Cliente</a>
     </div>
     
+    <div style="text-align: center; margin-bottom: 20px;">
+        <form action="{{ url_for('lista_clientes') }}" method="get">
+            <input type="text" name="searchTerm" placeholder="Buscar por nome ou telefone" style="padding: 5px; width: 200px;">
+            <button type="submit" style="padding: 5px 10px;">Buscar</button>
+        </form>
+    </div>
+    
     
     <h2> Listagem de Cliente </h2>
         <table>

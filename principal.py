@@ -101,21 +101,24 @@ def home():
 @app.route('/lista_clientes', methods=['GET'])
 def lista_clientes():
     page = request.args.get('page', 1, type=int)
-    show_all = request.args.get('showAll', default=False, type=bool)
-    search_term = request.args.get('searchTerm', default='', type=str).strip()
+    search_term = request.args.get('searchTerm', '')
 
-    if show_all:
-        clientes = Cliente.query.paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
+    if search_term:
+        # Filtra clientes pelo nome ou telefone
+        query = Cliente.query.filter(
+            Cliente.nome.ilike(f'%{search_term}%') | 
+            Cliente.telefone.ilike(f'%{search_term}%')
+        )
     else:
-        clientes = Cliente.query.filter(func.lower(Cliente.nome).contains(func.lower(search_term))).paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
+        query = Cliente.query
 
-    total_clientes = Cliente.query.count()
-    total_pages = ceil(total_clientes / ITEMS_PER_PAGE)
+    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    clientes = pagination.items
+    total_pages = pagination.pages
 
-    next_url = url_for('lista_clientes', page=clientes.next_num) if clientes.has_next else None
-    prev_url = url_for('lista_clientes', page=clientes.prev_num) if clientes.has_prev else None
+    return render_template('lista_clientes.html', clientes=clientes, total_pages=total_pages, current_page=page)
 
-    return render_template('lista_clientes.html', clientes=clientes.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url, show_all=show_all, search_term=search_term)
+
 @app.route('/clientes', methods=['GET', 'POST'])
 def listar_clientes():
     if request.method == 'GET':
