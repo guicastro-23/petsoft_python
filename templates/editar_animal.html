@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Animal</title>
+
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+        
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            overflow: hidden;
+        }
+        
+        li {
+            float: right;
+        }
+        
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        
+        li a:hover {
+            background-color: #4CAF50;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
+        }
+        
+        .form-row {
+            display: flex;
+           
+            justify-content: left;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        label {
+            color: #333;
+            margin-bottom: 5px; /* Adicione margem inferior para espaçamento vertical */
+            text-align: left;
+        }
+        
+        .input-container {
+            
+            flex: 2; 
+        }
+       
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .radio-label,
+        .checkbox-label {
+            font-weight: bold;
+        }
+
+        select {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 13px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            max-width: 100%; /* Defina a largura máxima para 100% do container pai */
+            width: auto; /* Redimensione automaticamente para o conteúdo */
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .errors {
+            max-width: 400px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ff6347;
+            color: white;
+            border-radius: 5px;
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+
+        .link-container a {
+            display: inline-block;
+            padding: 8px 13px;
+            text-decoration: none;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            border-radius: 4px;
+            background-color: #fff;
+            max-width: 100%; 
+            width: auto;"
+        }
+
+        .link-container a:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Petsoft</h1>
+
+    <ul>
+        <li><a href="/lista_clientes">Clientes</a></li>
+        <li><a href="/lista_animais">Animais</a></li>
+        <li><a href="/lista_servicos">Serviços</a></li>
+        <li><a href="/agendamento">Agendamento</a></li>
+        <li><a href="/index">Início</a></li>
+    </ul>
+
+    <form action="{{ url_for('editar_animal', animal_id=animal.id_an) }}" method="POST">
+        <h2>Editar Animal</h2>
+        <div class="form-row">
+            <label for="nome_animal">Nome do Animal:</label>
+            <input type="text" id="nome_animal" name="nome_animal" value="{{ animal.nome }}" pattern="[A-Za-zÀ-ú ]+" required>
+        </div>
+        <div class="form-row">
+            <label for="tipo_animal">Tipo de Animal:</label>
+            <input type="radio" id="cachorro" name="tipo_animal" value="Cachorro" {{ 'checked' if animal.tipo_animal == 'Cachorro' else '' }}> Cachorro
+            <input type="radio" id="gato" name="tipo_animal" value="Gato" {{ 'checked' if animal.tipo_animal == 'Gato' else '' }}> Gato
+        </div>
+
+        <div class="form-row">
+            <label for="data_nasc_animal">Data de Nascimento:</label>
+            <input type="date" id="data_nasc_animal" name="data_nasc_animal" value="{{ animal.data_nasc.strftime('%Y-%m-%d') }}" required>
+        </div>
+
+        <div class="form-row">
+            <label for="agressivo_animal">Agressivo:</label>
+            <input type="checkbox" id="agressivo_animal" name="agressivo_animal" value="True" {{ 'checked' if animal.agressivo else '' }}> Sim
+        </div>
+
+        <div class="form-row">
+            <label for="porte_animal">Porte:</label>
+            <select id="porte_animal" name="porte_animal">
+                <option value="Pequeno" {{ 'selected' if animal.porte == 'Pequeno' else '' }}>Pequeno</option>
+                <option value="Médio" {{ 'selected' if animal.porte == 'Médio' else '' }}>Médio</option>
+                <option value="Grande" {{ 'selected' if animal.porte == 'Grande' else '' }}>Grande</option>
+            </select>
+        </div>
+
+         <div class="form-row">
+            <label for="pelagem_animal">Tipo de Pelagem:</label>
+            <select id="pelagem_animal" name="pelagem_animal">
+                <option value="Curta" {{ 'selected' if animal.pelagem == 'Curta' else '' }}>Curta</option>
+                <option value="Longa" {{ 'selected' if animal.pelagem == 'Longa' else '' }}>Longa</option>
+                <option value="Encaracolada" {{ 'selected' if animal.pelagem == 'Encaracolada' else '' }}>Encaracolada</option>
+                <option value="Dupla" {{ 'selected' if animal.pelagem == 'Dupla' else '' }}>Dupla</option>
+                <option value="Mista" {{ 'selected' if animal.pelagem == 'Mista' else '' }}>Mista</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="observacoes_animal">Observações:</label>
+            <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50">{{ animal.obs }}</textarea>
+        </div>
+
+        <div class="form-row">
+        <button style="max-width: 100%; width: 400px;" >Salvar alterações</button>
+    </div>
+
+        <div class="link-container">
+            <a href="{{ url_for('lista_animais') }}"
+            style="max-width: 100%;
+                width: 370px;
+                margin: 0 auto; 
+                text-align:center;">Voltar</a>
+        </div>
+    </form>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="errors">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <div>
+</body>

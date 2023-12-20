@@ -186,9 +186,8 @@
                             <td>{{ animal.tipo_animal }}</td> 
                             <td>{{ animal.cliente.nome }}</td> 
                              <td>
-                                <a class="edit-link">Editar</a>
-                                <a class="delete-link"  onclick="return confirm('Tem certeza que deseja excluir este serviço?')"> Excluir</a>
-                            </td>
+                                <a class="edit-link" href="{{ url_for('editar_animal', animal_id=animal.id_an) }}">Editar</a>
+                                <a class="delete-link" href="{{url_for('excluir_animal', animal_id=animal.id_an)}}" onclick="return confirmExclusao('{{ animal.nome }}')"> Excluir</a> </td>
                          </tr>
                     {% endfor%}
                 </tbody>

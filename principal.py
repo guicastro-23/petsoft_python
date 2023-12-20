@@ -260,6 +260,69 @@ def lista_animais():
     prev_url = url_for('lista_animais', page=animais.prev_num) if animais.has_prev else None
 
     return render_template('lista_animais.html', animais=animais.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url)
+
+
+# Editar Animal
+@app.route('/editar_animal/<int:animal_id>', methods=['GET', 'POST'])
+def editar_animal(animal_id):
+    # Lógica para obter os dados do animal com o ID fornecido
+    animal = Animal.query.get_or_404(animal_id)
+
+    if request.method == 'POST':
+        # Lógica para processar os dados do formulário de edição
+        nome_animal = request.form['nome_animal']
+        tipo_animal = request.form['tipo_animal']
+        data_nasc_animal = request.form['data_nasc_animal']
+
+        if tipo_animal not in ['Cachorro', 'Gato']:
+            flash('Por favor, selecione se é um Cachorro ou um Gato.', 'error')
+        else:
+            # Validar o nome do animal usando expressão regular
+            if not re.match(r"^[A-Za-zÀ-ú ]+$", nome_animal):
+                flash('O nome do animal deve conter apenas letras e espaços.', 'error')
+            else:
+                try:
+                    data_nasc_animal = datetime.strptime(data_nasc_animal, '%Y-%m-%d')
+                except ValueError:
+                    flash('Data de nascimento inválida.', 'error')
+                else:
+                    # Obter a data atual como um objeto datetime
+                    data_atual = datetime.now()
+
+                    # Verificar se a data de nascimento é no futuro
+                    if data_nasc_animal > data_atual:
+                        flash('A data de nascimento não pode ser no futuro.', 'error')
+                    else:
+                        # Agora você pode atualizar os dados do animal no banco de dados
+                        nome_animal = nome_animal.capitalize()
+                        animal.nome = nome_animal
+                        animal.tipo_animal = tipo_animal
+                        animal.data_nasc = data_nasc_animal
+                        animal.agressivo = request.form.get('agressivo_animal') == 'True'
+                        animal.porte = request.form['porte_animal']
+                        animal.pelagem = request.form['pelagem_animal']
+                        animal.obs = request.form['observacoes_animal']
+                        
+
+                        # Atualiza os dados no banco de dados
+                        db.session.commit()
+
+                        flash('Alterações salvas com sucesso!', 'success')
+                        return redirect(url_for('lista_animais'))  # Redireciona para a lista de animais após a edição
+
+    # Renderize a página de edição com os dados do animal
+    return render_template('editar_animal.html', animal=animal)
+
+@app.route('/excluir_animal/<int:animal_id>', methods=['GET', 'POST'])
+def excluir_animal(animal_id):
+    animal = Animal.query.get_or_404(animal_id)
+    
+    db.session.delete(animal)
+    db.session.commit()
+    
+    flash(' Animal excluido com sucesso.', 'sucess')
+    return redirect(url_for('lista_animais'))
+
 #--------------------- Fim das rotas de animais ----------------------------------------------------------
 
 @app.route('/agendamento')
