@@ -6,26 +6,26 @@
     <title>Editar Animal</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        
-        h1 {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            margin: 0;
-            text-align: center;
-        }
-        
-        h2 {
-            margin-top: 20px;
-            text-align: center; /* Centraliza horizontalmente */
-            margin-bottom: 20px; /* Adiciona margem inferior para espaçamento */
-        }
+      body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
         
         ul {
             list-style-type: none;
@@ -211,10 +211,16 @@
             <textarea id="observacoes_animal" name="observacoes_animal" rows="4" cols="50">{{ animal.obs }}</textarea>
         </div>
 
-        <button type="submit">Salvar Alterações</button>
-    
+        <div class="form-row">
+        <button style="max-width: 100%; width: 400px;" >Salvar alterações</button>
+    </div>
+
         <div class="link-container">
-            <a href="{{ url_for('lista_animais') }}">Voltar</a>
+            <a href="{{ url_for('lista_animais') }}"
+            style="max-width: 100%;
+                width: 370px;
+                margin: 0 auto; 
+                text-align:center;">Voltar</a>
         </div>
     </form>
     {% with messages = get_flashed_messages() %}

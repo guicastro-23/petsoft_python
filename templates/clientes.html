@@ -22,8 +22,11 @@
         }
         
         h2 {
-            margin-top: 20px;
-        }
+    margin-top: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
         
         ul {
             list-style-type: none;
@@ -158,9 +161,8 @@
     </ul>
 
    
-       
+        <h2>Adicionar Novo Cliente</h2>
          <form method="POST" action="/clientes" onsubmit="return validateForm()">
-            <h2>Adicionar Novo Cliente</h2>
         <label for="nome_cliente">Nome do Cliente:</label>
         <input type="text" id="nome_cliente" name="nome_cliente" pattern="[A-Za-zÀ-ú ]+" title="Apenas letras e espaços são permitidos" required>
     
@@ -174,7 +176,12 @@
     
         
          <div class="link-container">
-           <a href="{{ url_for('lista_clientes') }}" >Ver Clientes</a>
+           <a href="{{ url_for('lista_clientes') }}"
+           style="max-width: 100%;
+           width: 370px;
+           margin: 0 auto; 
+           text-align:center;"
+            >Ver Clientes</a>
          </div>
         
     </form>

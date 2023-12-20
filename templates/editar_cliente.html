@@ -20,10 +20,12 @@
             margin: 0;
             text-align: center;
         }
-
         h2 {
-            margin-top: 20px;
-        }
+    margin-top: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 
         ul {
             list-style-type: none;
@@ -121,16 +123,15 @@
     <ul>
         <ul>
             <li><a href="/lista_clientes">Clientes</a></li>
-            <li><a href="/lista_animais">Animais</a></li>
-            <li><a href="/lista_servicos">Serviços</a></li>
+            <li><a href="/animais">Animais</a></li>
+            <li><a href="/servicos">Serviços</a></li>
             <li><a href="/agendamento">Agendamento</a></li>
             <li><a href="/index">Início</a></li>
         </ul>
     </ul>
 
-    
+    <h2>Editar Cliente</h2>
     <form action="{{ url_for('editar_cliente', cliente_id=cliente.idCliente)}}" method="POST">
-        <h2>Editar Cliente</h2>
         <label for="nome_cliente">Nome do Cliente:</label>
         <input type="text" id="nome_cliente" name="nome_cliente" value="{{ cliente.nome }}" pattern="[A-Za-zÀ-ú ]+" title="Apenas letras e espaços são permitidos" required>
     
@@ -143,7 +144,12 @@
         <button type="submit">Salvar Alterações</button>
 
         <div class=" link-container">
-            <a href="{{url_for('lista_clientes')}}">Voltar</a>
+            <a href="{{url_for('lista_clientes')}}"
+            style="max-width: 100%;
+            width: 370px;
+            margin: 0 auto; 
+            text-align:center;"
+            >Voltar</a>
         </div>
 
     </form>

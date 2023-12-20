@@ -80,6 +80,8 @@ class OrdemDeServico(db.Model):
 
 
 # Rotas
+
+# Rotas
 @app.route('/')
 def redirecionar_para_login():
    return redirect(url_for('login'))
@@ -173,6 +175,7 @@ def excluir_cliente(cliente_id):
 
 #---------- Rotas Animais ---------------------------------------------------------------------
     
+#19/12
 
 @app.route('/animais', methods=['GET', 'POST'])
 def listar_animais():
@@ -194,55 +197,65 @@ def listar_animais():
 
         if tipo_animal not in ['Cachorro', 'Gato']:
             flash('Por favor, selecione se é um Cachorro ou um Gato.', 'error')
-        else:
         # Validar o nome do animal usando expressão regular
-            if not re.match(r"^[A-Za-zÀ-ú ]+$", nome_animal):
-                flash('O nome do animal deve conter apenas letras e espaços.', 'error')
+        elif not re.match(r"^[A-Za-zÀ-ú ]+$", nome_animal):
+            flash('O nome do animal deve conter apenas letras e espaços.', 'error')
+        # Validation for animal name starting with an uppercase letter
+        elif not nome_animal[0].isupper():
+            flash('O nome do animal deve iniciar com letra maiúscula.', 'error')
+        # Validation for selecting "Tipo de Pelagem" (coat type)
+        elif not pelagem:
+            flash('Selecione um tipo de pelagem para o animal.', 'error')
+        # Validation for selecting "Porte" (size)
+        elif not porte:
+            flash('Selecione um porte para o animal.', 'error')
+        else:
+            # Verificar se o cliente existe
+            cliente = Cliente.query.get(cliente_id)
+            if cliente is None:
+                flash('Cliente não encontrado.', 'error')
             else:
-                # Verificar se o cliente existe
-                cliente = Cliente.query.get(cliente_id)
-                if cliente is None:
-                    flash('Cliente não encontrado.', 'error')
+                # Verificar se o animal já existe para o mesmo cliente
+                existing_animal = Animal.query.filter_by(nome=nome_animal, Cliente_idCliente=cliente_id).first()
+                if existing_animal:
+                    flash('Esse cliente já possui um animal com o mesmo nome.', 'error')
                 else:
-                    # Verificar se o animal já existe para o mesmo cliente
-                    existing_animal = Animal.query.filter_by(nome=nome_animal, Cliente_idCliente=cliente_id).first()
-                    if existing_animal:
-                        flash('Esse cliente já possui um animal com o mesmo nome.', 'error')
+                    try:
+                        data_nasc = datetime.strptime(data_nasc, '%Y-%m-%d')
+                    except ValueError:
+                        flash('Data de nascimento inválida.', 'error')
                     else:
-                        try:
-                            data_nasc = datetime.strptime(data_nasc, '%Y-%m-%d')
-                        except ValueError:
-                            flash('Data de nascimento inválida.', 'error')
+                        # Obter a data atual como um objeto datetime
+                        data_atual = datetime.now()
+
+                        # Verificar se a data de nascimento é no futuro
+                        if data_nasc > data_atual:
+                            flash('A data de nascimento não pode ser no futuro.', 'error')
                         else:
-                            # Obter a data atual como um objeto datetime
-                            data_atual = datetime.now()
+                            # Se todas as verificações passarem, criar o novo animal
+                            novo_animal = Animal(
+                                nome=nome_animal,
+                                data_nasc=data_nasc,
+                                Cliente_idCliente=cliente_id,
+                                pelagem=pelagem,
+                                porte=porte,
+                                agressivo=agressivo,
+                                obs=obs,
+                                tipo_animal=tipo_animal
+                            )
 
-                            # Verificar se a data de nascimento é no futuro
-                            if data_nasc > data_atual:
-                                flash('A data de nascimento não pode ser no futuro.', 'error')
-                            else:
-                                # Se todas as verificações passarem, criar o novo animal
-                                novo_animal = Animal(
-                                    nome=nome_animal,
-                                    data_nasc=data_nasc,
-                                    Cliente_idCliente=cliente_id,
-                                    pelagem=pelagem,
-                                    porte=porte,
-                                    agressivo=agressivo,
-                                    obs=obs,
-                                    tipo_animal=tipo_animal
-                                )
+                            db.session.add(novo_animal)
 
-                                db.session.add(novo_animal)
-
-                                try:
-                                    db.session.commit()
-                                    flash('Animal adicionado com sucesso.', 'success')
-                                except Exception as e:
-                                    db.session.rollback()
-                                    flash(f'Erro ao adicionar o animal: {str(e)}', 'error') 
-                                return redirect(url_for('lista_animais'))  
+                            try:
+                                db.session.commit()
+                                flash('Animal adicionado com sucesso.', 'success')
+                            except Exception as e:
+                                db.session.rollback()
+                                flash(f'Erro ao adicionar o animal: {str(e)}', 'error')
+                            return redirect(url_for('lista_animais'))
     return render_template('animais.html', animais=animais, clientes=clientes)
+
+#------------------ fim da rota de animais -------------------------------
 
 @app.route('/lista_animais', methods=['GET'])
 def lista_animais():
@@ -326,7 +339,6 @@ def excluir_animal(animal_id):
 def listar_agendamento():
     agendamento = OrdemDeServico.query.all()
     return render_template('agendamento.html', agendamento=agendamento)
-
 
 #------------------- Rota de Ordens --------------------------------------------
 
@@ -448,6 +460,7 @@ def buscar_servicos():
 
 
 # ------------------ fim das Rotas de Ordens -----------------------------------
+
 
 #---------------- Rotas de serviço --------------------------------------
 @app.route('/lista_servicos', methods=['GET'])
@@ -613,19 +626,6 @@ def criar_usuario():
         flash('Erro ao criar usuário. Entre em contato com o suporte.', 'error')
 
  
-
-    return render_template('criar_usuario.html')
-
-# Proteção de rotas
-@app.before_request
-def before_request():
-    # Lista de rotas públicas
-    rotas_publicas = ['login', 'redirecionar_para_login']
-
-    # Verifica se a rota está nas rotas públicas
-    if request.endpoint and request.endpoint not in rotas_publicas:
-        if 'username' not in session:
-            return redirect(url_for('login', next=request.endpoint))
 
 # ------------------ fim rotas de Usuario -----------------------------------
 
