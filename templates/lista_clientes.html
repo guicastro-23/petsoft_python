@@ -65,6 +65,7 @@
             th {
                 background-color: #4CAF50;
                 color: white;
+                text-align: center;
             }
     
             form {
@@ -181,16 +182,17 @@
             <thead>
                 <tr>
                     <th>Nome</th>
-                    <th>Telefone</th>
                     <th>Endereço</th>
+                    <th>Telefone</th>
                 </tr>  
             </thead>
             <tbody>
                 {%for cliente in clientes %}
                     <tr>
                         <td>{{cliente.nome}}</td>
-                        <td  class="text-right">{{cliente.telefone}}</td>
                         <td>{{ cliente.tipo_endereco }} {{ cliente.logradouro }}</td>
+                        <td  class="text-right">{{cliente.telefone}}</td>
+                        
                         <td>
                             <a class="edit-link" href="{{ url_for('editar_cliente', cliente_id=cliente.idCliente) }}">Editar</a>
                             <a class="delete-link" href="{{url_for('excluir_cliente', cliente_id=cliente.idCliente)}}" onclick="return confirmExclusao('{{ cliente.nome }}')">Excluir</a>

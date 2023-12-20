@@ -116,16 +116,15 @@ def lista_clientes():
     prev_url = url_for('lista_clientes', page=clientes.prev_num) if clientes.has_prev else None
 
     return render_template('lista_clientes.html', clientes=clientes.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url, show_all=show_all, search_term=search_term)
-
 @app.route('/clientes', methods=['GET', 'POST'])
 def listar_clientes():
     if request.method == 'GET':
         clientes = Cliente.query.all()
         return render_template('clientes.html', clientes=clientes)
     elif request.method == 'POST':
-        nome_cliente = request.form['nome_cliente']
+        nome_cliente = request.form['nome_cliente'].capitalize()
         telefone_cliente = request.form['telefone_cliente']
-        endereco_cliente = request.form['endereco_cliente']
+        endereco_cliente = request.form['endereco_cliente'].title()  # Converte a primeira letra de cada palavra para maiúscula
         tipo_endereco_cliente = request.form['tipo_endereco_cliente']
         numero_endereco_cliente = request.form['numero_endereco_cliente']
 
@@ -152,30 +151,37 @@ def listar_clientes():
             flash('Erro ao adicionar cliente.', 'error')
 
         return redirect(url_for('lista_clientes'))
-
     
 @app.route('/clientes/editar/<int:cliente_id>', methods=['GET', 'POST'])
 def editar_cliente(cliente_id):
     cliente = Cliente.query.get_or_404(cliente_id)
 
     if request.method == 'POST':
-        cliente.nome = request.form['nome_cliente']
-        cliente.telefone = request.form['telefone_cliente']
-        cliente.logradouro = request.form['endereco_cliente']
-        cliente.tipo_endereco = request.form['tipo_endereco_cliente']
-        cliente.numero_endereco = int(request.form['numero_endereco_cliente'])
+        nome_cliente = request.form['nome_cliente'].title()  # Converte a primeira letra de cada palavra para maiúscula
+        telefone_cliente = request.form['telefone_cliente']
+        endereco_cliente = request.form['endereco_cliente'].title()  # Converte a primeira letra de cada palavra para maiúscula
+        tipo_endereco_cliente = request.form['tipo_endereco_cliente']
+        numero_endereco_cliente = int(request.form['numero_endereco_cliente'])
 
         # Validar o número de telefone
         telefone_regex = r"\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}"
-        if not re.match(telefone_regex, cliente.telefone):
+        if not re.match(telefone_regex, telefone_cliente):
             flash('Informe um número de telefone no formato (XX) XXXXX-XXXX.', 'error')
             return redirect(url_for('editar_cliente', cliente_id=cliente_id))
+
+        # Atualizar dados do cliente
+        cliente.nome = nome_cliente
+        cliente.telefone = telefone_cliente
+        cliente.logradouro = endereco_cliente
+        cliente.tipo_endereco = tipo_endereco_cliente
+        cliente.numero_endereco = numero_endereco_cliente
 
         db.session.commit()
         flash('Alterações salvas com sucesso!', 'success')
         return redirect(url_for('lista_clientes'))
 
     return render_template('editar_cliente.html', cliente=cliente)
+
 
 @app.route('/excluir_cliente/<int:cliente_id>', methods=['GET', 'POST'])
 def excluir_cliente(cliente_id):
