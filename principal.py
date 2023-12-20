@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-
+from flask_migrate import Migrate
 from math import ceil
 
 ITEMS_PER_PAGE = 10
@@ -24,7 +24,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Guilherme1234@127.0.0.1/petsoft'
 app.config['SECRET_KEY'] = 'chave_secreta'  
 db = SQLAlchemy(app)
-
+migrate = Migrate(app, db)
 
 # Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
@@ -32,16 +32,20 @@ class Cliente(db.Model):
     nome = db.Column(db.String(80), nullable=False)
     logradouro = db.Column(db.String(80), nullable=False)
     telefone = db.Column(db.String(20), nullable=False)
+    tipo_endereco = db.Column(db.String(20))
+    numero_endereco = db.Column(db.Integer)
+             
 
 class Animal(db.Model):
     id_an = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80), nullable=False)
     data_nasc = db.Column(db.Date)
     pelagem = db.Column(db.String(20))
-    porte = db.Column(db.String(5))
+    porte = db.Column(db.String(10))
     agressivo = db.Column(db.Boolean)
     obs = db.Column(db.String(100))
     tipo_animal = db.Column(db.String(10), nullable=True)
+    
 
     # Chave estrangeira referenciando a tabela Cliente
     Cliente_idCliente = db.Column(db.Integer, db.ForeignKey('cliente.idCliente'), nullable=False)
@@ -79,6 +83,7 @@ class OrdemDeServico(db.Model):
     Animal_Cliente_idCliente = db.Column(db.Integer, nullable=False)
 
 
+ITEMS_PER_PAGE = 10
 
 
 # Rotas
@@ -92,18 +97,25 @@ def redirecionar_para_login():
 def home():
     return render_template('index.html')
 # ------------------------------Rotas de cliente ---------------------------------------
+
 @app.route('/lista_clientes', methods=['GET'])
 def lista_clientes():
+    page = request.args.get('page', 1, type=int)
     show_all = request.args.get('showAll', default=False, type=bool)
     search_term = request.args.get('searchTerm', default='', type=str).strip()
 
-    # Lógica para obter a lista de clientes com base nos parâmetros de consulta
     if show_all:
-        clientes = Cliente.query.all()
+        clientes = Cliente.query.paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
     else:
-        clientes = Cliente.query.filter(func.lower(Cliente.nome).contains(func.lower(search_term))).all()
+        clientes = Cliente.query.filter(func.lower(Cliente.nome).contains(func.lower(search_term))).paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
 
-    return render_template('lista_clientes.html', clientes=clientes, show_all=show_all, search_term=search_term)
+    total_clientes = Cliente.query.count()
+    total_pages = ceil(total_clientes / ITEMS_PER_PAGE)
+
+    next_url = url_for('lista_clientes', page=clientes.next_num) if clientes.has_next else None
+    prev_url = url_for('lista_clientes', page=clientes.prev_num) if clientes.has_prev else None
+
+    return render_template('lista_clientes.html', clientes=clientes.items, total_pages=total_pages, current_page=page, next_url=next_url, prev_url=prev_url, show_all=show_all, search_term=search_term)
 
 @app.route('/clientes', methods=['GET', 'POST'])
 def listar_clientes():
@@ -114,64 +126,76 @@ def listar_clientes():
         nome_cliente = request.form['nome_cliente']
         telefone_cliente = request.form['telefone_cliente']
         endereco_cliente = request.form['endereco_cliente']
+        tipo_endereco_cliente = request.form['tipo_endereco_cliente']
+        numero_endereco_cliente = request.form['numero_endereco_cliente']
 
-        # Server-side validation
-        if not re.match(r"[A-Za-zÀ-ú ]+", nome_cliente):
-            flash('O nome do cliente deve conter apenas letras e espaços.', 'error')
+        # Validar o número de telefone
+        telefone_regex = r"\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}"
+        if not re.match(telefone_regex, telefone_cliente):
+            flash('Informe um número de telefone no formato (XX) XXXXX-XXXX.', 'error')
             return redirect(url_for('listar_clientes'))
 
-        if not re.match(r"[0-9]{10,}", telefone_cliente):
-            flash('Informe um número de telefone válido.', 'error')
-            return redirect(url_for('listar_clientes'))
+        novo_cliente = Cliente(
+            nome=nome_cliente,
+            telefone=telefone_cliente,
+            logradouro=endereco_cliente,
+            tipo_endereco=tipo_endereco_cliente,
+            numero_endereco=int(numero_endereco_cliente)  # Converta para inteiro
+        )
 
-        # Verificar duplicação de nome de cliente
-        cliente_existente = Cliente.query.filter_by(nome=nome_cliente).first()
-        if cliente_existente:
-            flash('Um cliente com o mesmo nome já existe. ID do cliente existente: {}'.format(cliente_existente.idCliente), 'error')
-            return redirect(url_for('listar_clientes'))
-
-        # Se todas as validações passarem, adicione o novo cliente ao banco de dados
-        novo_cliente = Cliente(nome=nome_cliente, telefone=telefone_cliente, logradouro=endereco_cliente)
         db.session.add(novo_cliente)
         try:
             db.session.commit()
             flash('Cliente adicionado com sucesso.', 'success')
         except IntegrityError:
             db.session.rollback()
-            flash('Um cliente com o mesmo nome já existe.', 'error')
-        
+            flash('Erro ao adicionar cliente.', 'error')
+
         return redirect(url_for('lista_clientes'))
 
     
 @app.route('/clientes/editar/<int:cliente_id>', methods=['GET', 'POST'])
 def editar_cliente(cliente_id):
-    # Lógica para obter os dados do cliente com o ID fornecido
     cliente = Cliente.query.get_or_404(cliente_id)
 
     if request.method == 'POST':
-        # Lógica para processar os dados do formulário de edição
         cliente.nome = request.form['nome_cliente']
         cliente.telefone = request.form['telefone_cliente']
         cliente.logradouro = request.form['endereco_cliente']
+        cliente.tipo_endereco = request.form['tipo_endereco_cliente']
+        cliente.numero_endereco = int(request.form['numero_endereco_cliente'])
 
-        # Atualiza os dados no banco de dados
+        # Validar o número de telefone
+        telefone_regex = r"\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}"
+        if not re.match(telefone_regex, cliente.telefone):
+            flash('Informe um número de telefone no formato (XX) XXXXX-XXXX.', 'error')
+            return redirect(url_for('editar_cliente', cliente_id=cliente_id))
+
         db.session.commit()
-
         flash('Alterações salvas com sucesso!', 'success')
-        return redirect(url_for('lista_clientes'))  # Redirect to the list of clients
+        return redirect(url_for('lista_clientes'))
 
-    # Renderize a página de edição com os dados do cliente
     return render_template('editar_cliente.html', cliente=cliente)
 
 @app.route('/excluir_cliente/<int:cliente_id>', methods=['GET', 'POST'])
 def excluir_cliente(cliente_id):
     cliente = Cliente.query.get_or_404(cliente_id)
-    
+
+    # Verifica se o cliente possui animais associados
+    if cliente.animais:  # Supondo que 'animais' seja o relacionamento definido no modelo Cliente
+        flash('Não é possível excluir um cliente que possui animais associados.', 'error')
+        return redirect(url_for('lista_clientes'))
+
     db.session.delete(cliente)
-    db.session.commit()
+    try:
+        db.session.commit()
+        flash('Cliente excluído com sucesso.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao excluir cliente: {e}', 'error')
     
-    flash(' Cliente excluido com sucesso.', 'sucess')
     return redirect(url_for('lista_clientes'))
+
 
 #------------------ fim da rota de cliente -------------------------------
 
@@ -256,6 +280,7 @@ def listar_animais():
                                 flash(f'Erro ao adicionar o animal: {str(e)}', 'error')
                             return redirect(url_for('lista_animais'))
     return render_template('animais.html', animais=animais, clientes=clientes)
+
 
 @app.route('/lista_animais', methods=['GET'])
 def lista_animais():
