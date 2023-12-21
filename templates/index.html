@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petshop System</title>
+    <title>Petshop</title>
 
     <style>
         body {
@@ -69,6 +69,23 @@
             margin-top: 20px;
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
     
     </style>
 </head>
@@ -89,17 +106,27 @@
     
     <div class="section">
         
-        <h2>Agendamentos Atuais:</h2>
+        <h2>Lista de Ordens de Serviço</h2>
         
-        {% if agendamentos_atuais %}
-            <ul>
-                {% for agendamento in agendamentos_atuais %}
-                    <li>{{ agendamento.descricao }} - {{ agendamento.data_in }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <div>Nenhum agendamento atual encontrado.</div>
-        {% endif %}
+        <table>
+            <tr>
+                <th>ID da Ordem</th>
+                <th>Tipo</th>
+                <th>Valor (R$)</th>
+               
+            </tr>
+            {% for ordem in ordens_de_servico %}
+            <tr>
+                <td>{{ ordem.id_os }}</td>
+                <td>{{ ordem.tipo_servico }}</td>
+                <td>{{ ordem.valor }}</td>
+                <td>
+                    <a href="/editar/{{ ordem.id }}">Editar</a>
+                    <a href="/excluir/{{ ordem.id }}">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 
     <div class="section">

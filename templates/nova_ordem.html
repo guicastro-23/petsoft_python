@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <title>Nova Ordem</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+           text-align: center;
+            margin-bottom: 20px;
+       }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            overflow: hidden;
+        }
+
+        li {
+            float: right;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover {
+            background-color: #4CAF50;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px #ccc;
+        }
+        
+
+        label {
+            flex: 1;
+            color: #333;
+            margin-right: 10px;
+            text-align: right;
+        }
+
+        select,
+        input {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #servicos_list {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        #servicos_list label {
+            flex: 0 0 48%;
+            margin-right: 2%;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        #servicos_list input {
+            margin-right: 5px;
+        }
+
+        /* Novo estilo para a lista de serviços selecionados */
+        #servicos-selecionados {
+            list-style: none;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-width: 300px; /* Ajuste conforme necessário */
+            margin-top: 10px;
+        }
+
+        #servicos-selecionados {
+            padding-bottom: 20px; /* Adiciona espaço dentro da caixa, mantendo a borda */
+            /* OU */
+            margin-bottom: 20px; /* Adiciona espaço fora da caixa, abaixo da borda */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .dropdown-content a:hover {background-color: #f1f1f1}
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        a.edit-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .button-edit {
+            margin-top: 20px;
+        }
+        
+        .view-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .view-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .right-form {
+            width: 45%;
+            box-sizing: border-box;
+        }
+
+        .link-container a {
+            display: inline-block;
+            padding: 10px 15px;
+            text-decoration: none;
+            border: 2px solid #4CAF50; /* borda verde */
+            color: #4CAF50; /* texto */
+            border-radius: 4px;
+            background-color: #fff; /* fundo braco */
+        }
+        
+        .link-container a:hover {
+            background-color: #4CAF50; 
+            color: #fff; 
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-container {
+            flex: 2;
+        }
+        
+        .help-icon {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            font-size: 24px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .help-icon:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Ajuste a margem como necessário */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Reduzir a largura para tornar a janela menor */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adiciona uma sombra para um visual mais suave */
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+            line-height: 1.8; /* Aumenta o espaçamento entre as linhas */
+         }
+
+        .modal-content div {
+            margin-top: 10px; /* Adiciona um pouco de espaço no topo do conteúdo interno */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none; /* Mantém o modal escondido até que seja acionado */
+            position: fixed; /* Fica fixo na tela */
+            z-index: 1; /* Sobe na pilha */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita a rolagem se necessário */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro com transparência */
+            align-items: center; /* Alinha o conteúdo verticalmente */
+            justify-content: center; /* Alinha o conteúdo horizontalmente */
+         }
+
+        .modal-header {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do cabeçalho */
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+        }
+
+        
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+    <h1>Petsoft</h1>
+    <ul>
+        <li><a href="/lista_clientes">Clientes</a></li>
+        <li><a href="/lista_animais">Animais</a></li>
+        <li><a href="/lista_servicos">Serviços</a></li>
+        <li><a href="/agendamento">Agendamento</a></li>
+        <li><a href="/index">Início</a></li>
+    </ul>
+
+    <div id="helpIcon" class="help-icon" onclick="document.getElementById('myModal').style.display='block'">
+        <i class="fas fa-question"></i>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+            <div class="modal-header">
+                <strong> Ajuda Para Adicionar Animais:</strong>
+            </div>
+            <div class="modal-body">
+                <p><strong>Adicionar Serviço:</strong>Escolha o serviço e clique em 'Adicionar Serviço'.</p>
+                <p><strong>Criar Ordem:</strong> Preencha todos os campos do formulário e clique em 'Criar Ordem'.</p>
+                
+            </div>
+        </div>
+    </div>
+    
+
+
+   
+    <form method="POST" action="/nova_ordem" onsubmit="return validateForm()">
+        <h2>Criar Nova Ordem de Serviço</h2>
+        <div class="form-row">
+            <label for="cliente_animal">Cliente e Animal:</label>
+            <div class="input-container">
+                <select id="cliente_animal" name="cliente_animal" required>
+                    <option value="" disabled selected>Escolha o cliente</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.idCliente }}">{{ cliente.nome }}</option>
+                    {% endfor %}
+                </select>
+            
+           
+                <select id="animal" name="animal" required>
+                    <option value="" disabled selected>Escolha o animal</option>
+                    {% for animal in animais %}
+                        <option value="{{ animal.id_an }}">{{ animal.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>    
+        <div class="form-row">
+            <label for="tipo_servico">Tipo de Serviço:</label>
+            <div class="input-container">
+                <select id="tipo_servico" name="tipo_servico">
+                    <option value="" disabled selected>Escolha o tipo de serviço</option>
+                    {% for tipo in tipos_servico %}
+                        <option value="{{ tipo }}">{{ tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div> 
+
+        <div class="form-row">
+            <button style="max-width: 100%; width: 400px;">Adicionar Serviço</button>
+        </div> 
+
+        <div class="form-row">
+        <!-- Exibe o valor do serviço selecionado -->
+            <p>Valor do Serviço: R$ <span id="valor-servico">{{ valor_servico }}</span></p>
+        </div> 
+        
+        <!-- Lista de serviços selecionados -->
+            <ul id="servicos-selecionados">
+            <!-- Os serviços selecionados serão exibidos aqui -->
+            </ul>
+       
+
+        
+        <div class="form-row">   
+            <label for="descricao">Descrição:</label>
+            
+                <textarea id="descricao" name="descricao" rows="4" cols="50" required></textarea>
+            
+        </div> 
+
+        <div class="form-row">   
+            <label for="valor_total">Valor Total (R$):</label>
+            <div class="input-container">
+                <input type="number" id="valor_total" name="valor_total" step="0.01" required>
+            </div> 
+        </div> 
+
+        <div class="form-row">  
+            <label for="data_ordem">Data da Ordem:</label>
+            <div class="input-container">
+                <input type="date" id="data_ordem" name="data_ordem" required>
+            </div> 
+        </div> 
+
+        <button type="submit"
+        style="max-width: 100%;
+           width: 370px;
+           margin: 0 auto; 
+           text-align:center;"
+        >Criar Ordem</button>
+    </form>
+
+     <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+
+    <script>
+        // Close the modal if the clicked element is not modal-content
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        // Show the modal when the F2 key is pressed
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            var modal = document.getElementById('myModal');
+            if (event.key === 'F2' || event.keyCode === 113) { // 113 is the keycode for F2
+                modal.style.display = 'block';
+                event.preventDefault(); // Prevent the default F2 action
+            }
+        }
+    </script>
+
+
+   
+    <script>
+      // Variável para armazenar os serviços selecionados
+    var servicosSelecionados = [];
+
+    // Função para atualizar o valor do serviço com base na seleção
+    function atualizarValorServico() {
+    var tipoServicoSelecionado = document.getElementById('tipo_servico').value;
+    var valorServicoElement = document.getElementById('valor-servico');
+
+        if (valorServicoElement) {
+            // Faça uma solicitação AJAX para obter o valor do serviço
+            $.ajax({
+                url: '/obter_valor_servico?tipo_servico=' + tipoServicoSelecionado,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var valorDoServico = data.valor_servico;
+
+                    // Atualize o valor exibido no elemento HTML
+                    valorServicoElement.textContent = 'R$ ' + valorDoServico.toFixed(2);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+    }
+
+// Adicione um evento onchange ao elemento select
+document.getElementById('tipo_servico').addEventListener('change', atualizarValorServico);
+
+// Chame a função inicialmente para exibir o valor do serviço padrão
+atualizarValorServico();
+
+// Função para adicionar serviço à lista de serviços selecionados
+    function adicionarServico() {
+        var tipoServicoSelecionado = document.getElementById('tipo_servico').value;
+        var valorServico = parseFloat(document.getElementById('valor-servico').textContent.replace('R$ ', ''));
+
+        if (tipoServicoSelecionado && !servicosSelecionados.includes(tipoServicoSelecionado)) {
+            servicosSelecionados.push(tipoServicoSelecionado);
+
+            // Crie um novo elemento li para exibir o serviço selecionado
+            var servicoSelecionadoElement = document.createElement('li');
+            servicoSelecionadoElement.textContent = tipoServicoSelecionado + ' - R$ ' + valorServico.toFixed(2);
+
+            // Adicione o serviço selecionado à lista de serviços selecionados
+            document.getElementById('servicos-selecionados').appendChild(servicoSelecionadoElement);
+
+            // Atualize o valor total
+            atualizarValorTotal();
+        }
+}   
+
+// Função para calcular o valor total com base nos serviços selecionados
+    function atualizarValorTotal() {
+    var valorTotal = 0;
+
+    servicosSelecionados.forEach(function (tipoServico) {
+        var valorServico = parseFloat(document.getElementById('valor-servico').textContent.replace('R$ ', ''));
+        valorTotal += valorServico;
+    });
+
+    document.getElementById('valor_total').value = valorTotal.toFixed(2);
+    }
+
+    // Adicione um ouvinte de eventos ao botão "Adicionar Serviço"
+    document.getElementById('adicionar-servico-button').addEventListener('click', adicionarServico);
+
+    // Chame a função inicialmente para exibir o valor do serviço padrão
+    atualizarValorServico();
+
+</script>
+    
+    
+</body>
+
+</html>

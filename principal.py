@@ -34,7 +34,6 @@ def format_currency(value):
 app.jinja_env.filters['format_currency'] = format_currency
 
 
-# Definindo modelos para as tabelas do banco de dados
 class Cliente(db.Model):
     idCliente = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80), nullable=False)
@@ -42,7 +41,6 @@ class Cliente(db.Model):
     telefone = db.Column(db.String(20), nullable=False)
     tipo_endereco = db.Column(db.String(20))
     numero_endereco = db.Column(db.Integer)
-             
 
 class Animal(db.Model):
     id_an = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -62,6 +60,7 @@ class Animal(db.Model):
     cliente = db.relationship('Cliente', backref=db.backref('animais', lazy=True))
 
 
+
 class Usuario(db.Model):
     id_us = db.Column(db.Integer, primary_key=True, autoincrement=True)
     login = db.Column(db.String(100), nullable=False)
@@ -79,18 +78,36 @@ class Servico(db.Model):
     tipo = db.Column(db.String(20))
     valor = db.Column(db.Float)
 
+
+
 class OrdemDeServico(db.Model):
     id_os = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tipo = db.Column(db.String(10), nullable=False)
+    tipo_servico = db.Column(db.String(20), nullable=False)
     descricao = db.Column(db.String(45), nullable=False)
     valorTotal = db.Column(db.Float, nullable=False)
     data_in = db.Column(db.Date)
-    Usuario_id_us = db.Column(db.Integer, db.ForeignKey('usuario.id_us'), nullable=False)
+    Usuario_id_us = db.Column(db.Integer, db.ForeignKey('usuario.id_us'), nullable=True)
     Cliente_idCliente = db.Column(db.Integer, db.ForeignKey('cliente.idCliente'), nullable=False)
     Animal_id_an = db.Column(db.Integer, db.ForeignKey('animal.id_an'), nullable=False)
-    Animal_Cliente_idCliente = db.Column(db.Integer, nullable=False)
+    Animal_Cliente_idCliente = db.Column(db.Integer, nullable=True)
+   # servico_id = db.Column(db.Integer,db.ForeignKey('servico.id_ser'),nullable=False)
+    
+    cliente = db.relationship('Cliente', foreign_keys=[Cliente_idCliente])
+    animal = db.relationship('Animal', foreign_keys=[Animal_id_an])
+    #servico = db.relationship('Servico', foreign_keys=[servico_id])
 
 
+#class OrdemServicoServico(db.Model):
+  #  _tablename_ = 'ordem_servico_servico'
+
+  #  ordem_de_servico_id = db.Column(db.Integer, db.ForeignKey('ordem_de_servico.id_os'), primary_key=True)
+  #  servico_tipo = db.Column(db.String(20), db.ForeignKey('servico.tipo'), primary_key=True)
+
+    # Relacionamentos com as outras tabelas
+   # ordem_de_servico = db.relationship('OrdemDeServico')
+   # servico = db.relationship('Servico')
+
+    
 ITEMS_PER_PAGE = 10
 
 
@@ -387,53 +404,69 @@ def listar_agendamento():
     agendamento = OrdemDeServico.query.all()
     return render_template('agendamento.html', agendamento=agendamento)
 
-#------------------- Rota de Ordens --------------------------------------------
-
 # Rota para a página "Nova Ordem"
 @app.route('/nova_ordem', methods=['GET', 'POST'])
 def nova_ordem():
-    # Assuming you have a Servico model
-    servicos = Servico.query.all()
-
     if request.method == 'POST':
-        # Process the form data when the form is submitted
-        animal_id = request.form['animal']
-        cliente_id = request.form['cliente']
-        servicos_ids = request.form.getlist('servicos[]')  # Use getlist to get multiple selected values
-        valor_total = sum(float(Servico.query.get(servico_id).valor) for servico_id in servicos_ids)
-        data_ordem = datetime.strptime(request.form['data_ordem'], '%Y-%m-%d')
+        # Obtenha os dados do formulário
+        tipo_servico = request.form['tipo_servico']
         descricao = request.form['descricao']
-        servicos_ids = [int(id) for id in request.form['servicos_ids'].split(',') if id.isdigit()]
-        # Create a new order and add it to the database
+        valorTotal = float(request.form['valor_total'])
+        data_in = request.form['data_ordem']
+        cliente_id = int(request.form['cliente_animal'])
+        animal_id = int(request.form['animal'])
+
+ # Obtenha o valor do serviço com base no tipo de serviço selecionado
+        servico = Servico.query.filter_by(tipo=tipo_servico).first()
+        valorTotal = servico.valor if servico else 0.0
+
+        # Crie uma nova ordem de serviço
         nova_ordem = OrdemDeServico(
-            tipo=servicos_ids,
+            tipo_servico=tipo_servico,
             descricao=descricao,
-            valorTotal=valor_total,
-            data_in=data_ordem,
-            Usuario_id_us=1,  # Replace with the actual user ID
+            valorTotal=valorTotal,
+            data_in=data_in,
             Cliente_idCliente=cliente_id,
-            Animal_id_an=animal_id,
-            Animal_Cliente_idCliente=cliente_id
+            Animal_id_an=animal_id
         )
 
-        # Associate services with the order
-        nova_ordem.servicos.extend(Servico.query.filter(Servico.id_ser.in_(servicos_ids)).all())
-
+        # Adicione a ordem de serviço ao banco de dados
         db.session.add(nova_ordem)
+        db.session.commit()
 
-        try:
-            db.session.commit()
-            flash('Ordem de serviço adicionada com sucesso.', 'success')
-        except IntegrityError:
-            db.session.rollback()
-            flash('Erro ao adicionar a ordem de serviço.', 'error')
+        # Redirecione para a página de listagem de ordens de serviço ou outra página relevante
+        return redirect(url_for('nova_ordem'))
 
-        return redirect(url_for('index'))  # Replace with the appropriate route
+    # Se o método for GET, simplesmente renderize o formulário
+    clientes = Cliente.query.all()
+    animais = Animal.query.all()
+    
+    # Obtenha os tipos de serviço disponíveis do banco de dados
+    tipos_servico = [servico.tipo for servico in Servico.query.all()]
+    
+    return render_template('nova_ordem.html', clientes=clientes, animais=animais, tipos_servico=tipos_servico)
 
-    # Render the form with the list of services
-    return render_template('nova_ordem.html', servicos=servicos)
+@app.route('/obter_valor_servico', methods=['GET'])
+def obter_valor_servico():
+    tipo_servico = request.args.get('tipo_servico')
+    
+    # Consulte o banco de dados para obter o valor do serviço com base no tipo
+    servico = Servico.query.filter_by(tipo=tipo_servico).first()
+    
+    # Verifique se o serviço foi encontrado
+    if servico:
+        valor_servico = servico.valor
+    else:
+        valor_servico = 0.0
+
+    # Converta o valor para uma string JSON para enviar de volta ao cliente
+    resposta = {'valor_servico': valor_servico}
+    
+    # Use a função jsonify para converter a resposta em JSON
+    return jsonify(resposta)
 
 
+#------------------- fi da  Rota de Ordens --------------------------------------------
 
 @app.route('/eventos', methods=['GET'])
 def obter_eventos():
@@ -688,7 +721,7 @@ if __name__ == '__main__':
    
     app.run(debug=True)
 
-#     # Apaga o banco e recomeça
-#with app.app_context():
-   #     db.drop_all()
-   # db.create_all()
+    # Apaga o banco e recomeça
+# with app.app_context():
+#        db.drop_all()
+#        db.create_all()

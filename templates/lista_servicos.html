@@ -194,14 +194,24 @@
             text-align: center;
             margin-bottom: 20px;
         }
+
+        .search-group {
+            display: flex; /* Establishes a flex container */
+            align-items: center; /* Centers the items vertically */
+            gap: 10px; /* Adds space between items */
+        }
+        
         
         .search-input {
-            width: 250px; /* Largura do campo de busca */
-            padding: 8px;
+            padding: 10px;
+            width: 100%; /* Adjust width as necessary */
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            border-radius: 4px;
         }
         
         .search-button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -323,10 +333,13 @@
         </div>
 
           
-        <div style="display: flex; justify-content: center; align-items: end; gap: 10px; margin-bottom: 20px;">
-            <input type="text" name="searchTerm" placeholder="Buscar por nome" style="padding: 10px; width: 150px; border: 1px solid #ccc; box-sizing: border-box; border-radius: 4px;">
-            <button type="submit" style="padding: 10px 20px; border: none; background-color: #4CAF50; color: white;  border-radius: 4px;">Buscar</button>
-        </form>
+        <div class="search-container">
+            <form action="/search" method="get">
+                <div class="search-group">
+                    <input type="text" name="searchTerm" placeholder="Buscar por nome" class="search-input">
+                    <button type="submit" class="search-button">Buscar</button>
+                </div>
+            </form>
         </div>
         
         
